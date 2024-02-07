@@ -154,7 +154,56 @@ router.patch(
 
 router.delete(
   "/posts/:postId/comments/:commentId",
-  async (req, res, next) => {}
+  authMiddleware,
+  async (req, res, next) => {
+    const { postId, commentId } = req.params;
+    const user = req.user;
+
+    if (!postId) {
+      return res.status(400).json({
+        success: false,
+        message: "postId는 필수로 입력되어야 합니다.",
+      });
+    }
+
+    if (!commentId) {
+      return res.status(400).json({
+        success: false,
+        message: "commentId는 필수로 입력되어야 합니다.",
+      });
+    }
+
+    const post = await prisma.posts.findFirst({ where: { postId: +postId } });
+
+    if (!post) {
+      return res
+        .status(404)
+        .json({ success: false, message: "해당 게시물을 찾을 수 없습니다." });
+    }
+
+    const comment = await prisma.comments.findFirst({
+      where: { commentId: +commentId },
+    });
+
+    if (!comment) {
+      return res
+        .status(404)
+        .json({ success: false, message: "해당 댓글을 찾을 수 없습니다." });
+    }
+
+    if (user.grade === "USER" && user.userId !== comment.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "댓글을 삭제할 권한이 없습니다.",
+      });
+    }
+
+    await prisma.comments.delete({
+      where: { commentId: +commentId },
+    });
+
+    return res.status(200).json({ message: "댓글이 삭제되었습니다." });
+  }
 );
 
 export default router;
