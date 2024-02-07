@@ -1,6 +1,7 @@
 import express from "express";
 import { prisma } from "../utils/index.js";
 import bcrypt from "bcrypt";
+import { generateToken, generateRefreshToken } from "../utils/jwt.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -95,7 +96,37 @@ router.post("/sign-up", async (req, res, next) => {
 });
 
 // 로그인 API
-
+router.post("/sign-in", async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    // 이메일 유무 확인
+    if (!email) {
+      return res.status(404).json({ message: "이메일을 입력해주세요" });
+    }
+    // 비밀번호 유무 확인
+    if (!password) {
+      return res.status(404).json({ message: "비밀번호를 입력해주세요" });
+    }
+    // 사용자 조회
+    const user = await prisma.users.findFirst({ where: { email } });
+    // 사용자 존재 여부 확인
+    if (!user) {
+      return res.status(404).json({ message: "존재하지 않는 이메일입니다." });
+    }
+    // 비밀번호 일치 여부 확인
+    if (!(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
+    }
+    // 쿠키 할당 및 출력
+    const token = generateToken({ userId: user.userId });
+    const refreshToken = generateRefreshToken({ userId: user.userId });
+    res.cookie("authorization", `Bearer ${token}`);
+    res.cookie("refreshToken", `Bearer ${refreshToken}`);
+    return res.status(200).json({ message: "로그인에 성공하였습니다." });
+  } catch (error) {
+    next(error);
+  }
+});
 // 로그아웃 API
 
 export default router;
