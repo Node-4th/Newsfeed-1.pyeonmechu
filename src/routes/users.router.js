@@ -127,6 +127,17 @@ router.post("/sign-in", async (req, res, next) => {
     next(error);
   }
 });
-// 로그아웃 API
 
+// 로그아웃 API
+router.post("/logout", async (req, res, next) => {
+  try {
+    // 쿠키를 삭제하여 로그아웃
+    res.clearCookie("authorization");
+    res.clearCookie("refreshToken");
+
+    return res.status(200).json({ message: "로그아웃 되었습니다." });
+  } catch (error) {
+    next(error);
+  }
+});
 export default router;
