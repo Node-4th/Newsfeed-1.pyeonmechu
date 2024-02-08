@@ -14,7 +14,7 @@ model Users {
   userId       Int      @id @default(autoincrement()) @map("userId")
   grade        Grade    @map("grade")
   email        String   @unique @map("email")
-  password     String   @map("password") 
+  password     String   @map("password")
   name         String   @map("name") @db.VarChar(10)
   nickname     String?  @map("nickname") @db.VarChar(10)
   profileImage String?  @map("profileImage")
@@ -24,6 +24,8 @@ model Users {
 
   Posts    Posts[]
   Comments Comments[]
+  // Like     Like?
+  // Unlike   Unlike?
 
   @@map("Users")
 }
@@ -41,8 +43,6 @@ model Posts {
   imageURL  String?  @map("imageURL")
   tag       String?  @map("tag")
   category  Category @map("category")
-  like      Int      @default(0) @map("like")
-  unlike    Int      @default(0) @map("unlike")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
@@ -75,21 +75,23 @@ model Comments {
 }
 
 model Like {
-  likeId Int    @id @default(autoincrement()) @map("likeId")
-  postId Int    @map("postId")
-  cookie String @unique @map("cookie")
+  likeId Int @id @default(autoincrement()) @map("likeId")
+  postId Int @map("postId")
+  userId Int @unique @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  // user Users @relation(fields: [userId], references: [userId], onDelete: NoAction)
 
   @@map("Like")
 }
 
 model Unlike {
-  unlikeId Int    @id @default(autoincrement()) @map("unlikeId")
-  postId   Int    @map("postId")
-  cookie   String @unique @map("cookie")
+  unlikeId Int @id @default(autoincrement()) @map("unlikeId")
+  postId   Int @map("postId")
+  userId   Int @unique @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  // user Users @relation(fields: [userId], references: [userId], onDelete: NoAction)
 
   @@map("Unlike")
 }
