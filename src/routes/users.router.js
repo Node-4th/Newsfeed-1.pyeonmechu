@@ -38,12 +38,10 @@ router.post("/sign-up", async (req, res, next) => {
     }
     // 비밀번호의 길이
     if (password.length < 6 || password.length > 20) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "비밀번호는 최소 6자리 이상, 최대 20자리 이하 입니다.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "비밀번호는 최소 6자리 이상, 최대 20자리 이하 입니다.",
+      });
     }
     // 비밀번호 확인
     if (password !== passwordConfirm) {
@@ -108,7 +106,7 @@ router.post("/sign-in", async (req, res, next) => {
     const { email, password } = req.body;
     // 이메일 유무 확인
     if (!email) {
-      return res.status(404).json({ message: "이메일을 입력해주세요" });
+      return res.status(400).json({ message: "이메일을 입력해주세요" });
     }
     // 비밀번호 유무 확인
     if (!password) {
