@@ -5,6 +5,9 @@ import Logger from "./middlewares/logger.middleware.js";
 import UsersRouter from "./routes/users.router.js";
 import PostsRouter from "./routes/posts.router.js";
 import CommentsRouter from "./routes/comments.router.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
