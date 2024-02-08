@@ -201,4 +201,48 @@ router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
   });
 });
 
+/** 게시글 삭제 */
+router.delete("/posts/:postId", authMiddleware, async (req, res, next) => {
+  const user = req.user;
+  const postId = req.params.postId;
+
+  if (!postId) {
+    return res.status(400).json({
+      success: false,
+      message: "postId는 필수값입니다.",
+    });
+  }
+
+  const post = await prisma.posts.findFirst({
+    where: {
+      postId: Number(postId),
+    },
+  });
+
+  if (!post) {
+    return res.status(400).json({
+      success: false,
+      message: "게시글이 존재하지 않습니다.",
+    });
+  }
+
+  if (post.userId !== user.userId) {
+    return res.status(400).json({
+      success: false,
+      message: "올바르지 않은 요청입니다.",
+    });
+  }
+
+  await prisma.posts.delete({
+    where: {
+      postId: Number(postId),
+    },
+  });
+
+  return res.status(201).json({
+    success: true,
+    message: "삭제 완료되었습니다.",
+  });
+});
+
 export default router;
