@@ -62,13 +62,13 @@ router.post("/sign-up", async (req, res, next) => {
     // // 프로필이미지 존재 유무
     // if (!profileImage) {
     //   return res
-    //     .status(404)
+    //     .status(400)
     //     .json({ success: false, message: "프로필 이미지를 등록해주세요." });
     // }
     // // 자기소개 존재 유무
     // if (!aboutMe) {
     //   return res
-    //     .status(404)
+    //     .status(400)
     //     .json({ success: false, message: "자기소개를 작성해주세요." });
     // 이메일 확인
     const isExistUser = await prisma.users.findFirst({
@@ -116,11 +116,11 @@ router.post("/sign-in", async (req, res, next) => {
     const user = await prisma.users.findFirst({ where: { email } });
     // 사용자 존재 여부 확인
     if (!user) {
-      return res.status(400).json({ message: "존재하지 않는 이메일입니다." });
+      return res.status(404).json({ message: "존재하지 않는 이메일입니다." });
     }
     // 비밀번호 일치 여부 확인
     if (!(await bcrypt.compare(password, user.password))) {
-      return res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
+      return res.status(401).json({ message: "비밀번호가 일치하지 않습니다." });
     }
     // 쿠키 할당 및 출력
     const token = AccessToken({ userId: user.userId });
