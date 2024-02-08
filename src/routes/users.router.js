@@ -47,10 +47,15 @@ router.patch("/users/me", authMiddleware, async (req, res, next) => {
 
     if (!user && user.grade === "USER")
       return res.status(401).json({ message: "수정할 권한이 없습니다." });
+    if (!email)
+      return res.status(401).json({ message: "이미엘은 필수값입니다." });
+    if (!password)
+      return res.status(401).json({ message: "비밀번호는 필수값입니다." });
     if (password !== passConfirm)
       return res
-        .status(400)
+        .status(401)
         .json({ message: "비밀번호와 비밀번호 확인이 일치하지 않습니다." });
+    if (name) return res.status(401).json({ message: "이름은 필수값입니다." });
 
     await prisma.users.update({
       where: { userId: +userId },
@@ -82,7 +87,8 @@ router.delete("/users/leave", authMiddleware, async (req, res, next) => {
       where: { userId: +userId },
     });
 
-    if (!user) return res.status(401).json({ message: "유저가 없습니다.." });
+    if (!user)
+      return res.status(404).json({ message: "찾는 사용자가 없습니다.." });
 
     await prisma.users.delete({
       where: { userId: +userId },
@@ -107,11 +113,11 @@ router.get("/users/:userId", authMiddleware, async (req, res, next) => {
     });
 
     if (othersPost !== params)
-      return res.status(404).json({ message: "존제하지 않는 글입니다." });
+      return res.status(404).json({ message: "존재하지 않는 글입니다." });
 
     if (othersPost.userId !== userId) {
       const otherPost = await prisma.posts.findMany({
-        where: { postId: +params },
+        where: { userId: +params },
         select: {
           userId: true,
           title: true,
@@ -123,6 +129,16 @@ router.get("/users/:userId", authMiddleware, async (req, res, next) => {
           unlike: true,
           createdAt: true,
           updatedAt: true,
+          users: {
+            select: {
+              userId: true,
+              email: true,
+              mame: true,
+              nickname: true,
+              profileImage: true,
+              aboutMe: true,
+            },
+          },
         },
       });
 
