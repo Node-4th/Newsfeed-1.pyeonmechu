@@ -1,7 +1,7 @@
 import express from "express";
 import { prisma } from "../utils/index.js";
 import bcrypt from "bcrypt";
-import { AccessToken, RefreshToken } from "../utils/jwt.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -123,8 +123,8 @@ router.post("/sign-in", async (req, res, next) => {
       return res.status(401).json({ message: "비밀번호가 일치하지 않습니다." });
     }
     // 쿠키 할당 및 출력
-    const token = AccessToken({ userId: user.userId });
-    // const refreshToken = RefreshToken({ userId: user.userId });
+    const token = generateAccessToken({ userId: user.userId });
+    // const refreshToken = generateRefreshToken({ userId: user.userId });
     res.cookie("authorization", `Bearer ${token}`);
     // res.cookie("refreshToken", `Bearer ${refreshToken}`);
     return res.status(200).json({ message: "로그인에 성공하였습니다." });
