@@ -128,4 +128,77 @@ router.get("/posts/:postId", async (req, res, next) => {
   return res.status(200).json({ data: post });
 });
 
+/** 게시글 수정 */
+router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
+  const user = req.user;
+  const postId = req.params.postId;
+  const { title, content, imageURL, tag, category } = req.body;
+
+  if (!postId) {
+    return res.status(400).json({
+      success: false,
+      message: "postId는 필수값 입니다.",
+    });
+  }
+
+  if (!title) {
+    return res.status(400).json({
+      success: false,
+      message: "제목은 필수값 입니다.",
+    });
+  }
+
+  if (!content) {
+    return res.status(400).json({
+      success: false,
+      message: "내용은 필수값 입니다.",
+    });
+  }
+
+  if (!category) {
+    return res.status(400).json({
+      success: false,
+      message: "카테고리는 필수값 입니다.",
+    });
+  }
+
+  const post = await prisma.posts.findFirst({
+    where: {
+      postId: Number(postId),
+    },
+  });
+
+  if (!post) {
+    return res.status(400).json({
+      success: false,
+      message: "게시글이 존재하지 않습니다.",
+    });
+  }
+
+  if (post.userId !== user.userId) {
+    return res.status(400).json({
+      success: false,
+      message: "올바르지 않은 요청입니다.",
+    });
+  }
+
+  await prisma.posts.update({
+    where: {
+      postId: Number(postId),
+    },
+    data: {
+      title,
+      content,
+      imageURL,
+      tag,
+      category,
+    },
+  });
+
+  return res.status(201).json({
+    success: true,
+    message: "게시글 수정이 완료되었습니다.",
+  });
+});
+
 export default router;
