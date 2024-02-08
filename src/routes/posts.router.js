@@ -65,9 +65,9 @@ router.get("/posts", async (req, res, next) => {
       user: {
         select: {
           nickname: true,
-          userId: true,
         },
       },
+      userId: true,
       postId: true,
       title: true,
       content: true,
@@ -84,6 +84,48 @@ router.get("/posts", async (req, res, next) => {
   });
 
   return res.status(200).json({ data: posts });
+});
+
+/** 게시글 상세 조회 API **/
+router.get("/posts/:postId", async (req, res, next) => {
+  const { postId } = req.params;
+
+  if (!postId) {
+    return res.status(400).json({
+      success: false,
+      message: "postId 는 필수값 입니다.",
+    });
+  }
+
+  const post = await prisma.posts.findFirst({
+    where: {
+      postId: +postId,
+    },
+    select: {
+      user: {
+        select: {
+          nickname: true,
+        },
+        postId: true,
+        userId: true,
+        title: true,
+        content: true,
+        imageURL: true,
+        tag: true,
+        category: true,
+        like: true,
+        unlike: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    },
+  });
+
+  if (!post) {
+    return res.json({ messsage: "작성한 이력서가 없습니다." });
+  }
+
+  return res.status(200).json({ data: post });
 });
 
 export default router;
