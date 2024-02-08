@@ -14,7 +14,7 @@ model Users {
   userId       Int      @id @default(autoincrement()) @map("userId")
   grade        Grade    @map("grade")
   email        String   @unique @map("email")
-  password     String   @map("password") @db.VarChar(20)
+  password     String   @map("password") 
   name         String   @map("name") @db.VarChar(10)
   nickname     String?  @map("nickname") @db.VarChar(10)
   profileImage String?  @map("profileImage")
