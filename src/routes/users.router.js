@@ -180,27 +180,18 @@ router.patch("/users/me", authMiddleware, async (req, res, next) => {
       where: { userId: +userId },
     });
 
-    if (!user)
-      return res.status(404).json({ message: "프로필이 존재하지 않습니다." });
-    if (user.userId !== +userId && user.grade === "USER")
+    if (!user && user.grade === "USER")
       return res.status(401).json({ message: "자신의 프로필이 아닙니다." });
-
-    const updateEmail = email ? email : user.email;
-    const updatePassword = password ? password : user.password;
-    const updateName = name ? name : user.name;
-    const updateNickName = nickname ? nickname : user.nickname;
-    const updateProfileImage = profileImage ? profileImage : user.profileImage;
-    const updateAboutMe = aboutMe ? aboutMe : user.aboutMe;
 
     await prisma.users.update({
       where: { userId: +userId },
       data: {
-        email: updateEmail,
-        password: updatePassword,
-        name: updateName,
-        nickname: updateNickName,
-        profileImage: updateProfileImage,
-        aboutMe: updateAboutMe,
+        email,
+        password,
+        name,
+        nickname,
+        profileImage,
+        aboutMe,
       },
     });
 
@@ -220,10 +211,11 @@ router.delete("/users/leave", authMiddleware, async (req, res, next) => {
     await prisma.users.delete({
       where: { userId: +userId },
     });
-    res.clearCookie("authorization");
     return res
+      .clearCookie("authorization")
       .status(200)
-      .json({ success: true, message: "회원 탈퇴되었습니다." });
+      .json({ success: true, message: "회원 탈퇴되었습니다." })
+      .redirect("/posts");
   } catch (err) {
     next(err);
   }
@@ -234,15 +226,34 @@ router.get("/users/:userId", async (req, res, next) => {
   try {
     const { userId } = req.params;
 
-    const othersPost = await prisma.posts.findMany({
-      where: { postId: +userId },
+    const user = await prisma.users.findFirst({
+      where: { userId: +userId },
+    });
+
+    if (!user)
+      return res.status(404).json({ message: "유저가 존재하지 않습니다." });
+
+    const userProfile = await prisma.users.findFirst({
+      where: { userId: +userId },
+      select: {
+        userId: true,
+        nickname: true,
+        profileImage: true,
+        aboutMe: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    const othersPost = await prisma.posts.findFirst({
+      where: { userId: +userId },
     });
 
     if (!othersPost)
       return res.status(404).json({ message: "존재하지 않는 글입니다." });
 
-    const otherPost = await prisma.posts.findMany({
-      where: { postId: +userId },
+    const userPosts = await prisma.posts.findMany({
+      where: { userId: +userId },
       select: {
         userId: true,
         title: true,
@@ -250,24 +261,12 @@ router.get("/users/:userId", async (req, res, next) => {
         imageURL: true,
         tag: true,
         category: true,
-        like: true,
-        unlike: true,
         createdAt: true,
         updatedAt: true,
-        users: {
-          select: {
-            userId: true,
-            email: true,
-            mame: true,
-            nickname: true,
-            profileImage: true,
-            aboutMe: true,
-          },
-        },
       },
     });
 
-    return res.status(200).json({ data: otherPost });
+    return res.status(200).json({ userProfile, userPosts });
   } catch (err) {
     next(err);
   }
