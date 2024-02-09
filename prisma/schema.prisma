@@ -47,8 +47,8 @@ model Posts {
   updatedAt DateTime @updatedAt @map("updatedAt")
 
   user     Users      @relation(fields: [userId], references: [userId], onDelete: NoAction)
-  Like     Like[]
-  Unlike   Unlike[]
+  Likes    Likes[]
+  Hates    Hates[]
   Comments Comments[]
 
   @@map("Posts")
@@ -74,24 +74,35 @@ model Comments {
   @@map("Comments")
 }
 
-model Like {
+model Likes {
   likeId Int @id @default(autoincrement()) @map("likeId")
   postId Int @map("postId")
   userId Int @unique @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
-  @@map("Like")
+  @@map("Likes")
 }
 
-model Unlike {
+model Hates {
   unlikeId Int @id @default(autoincrement()) @map("unlikeId")
   postId   Int @map("postId")
   userId   Int @unique @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
-  @@map("Unlike")
+  @@map("Hates")
+}
+
+model Follow {
+  followId    Int @id @default(autoincrement()) @map("followId")
+  followingId Int @map("followingUserId")
+  followerId  Int @map("followerUserId")
+
+  followingUser Users @relation(name: "followingId", fields: [followingId], references: [userId], onDelete: Cascade)
+  followerUser  Users @relation(name: "followerId", fields: [followerId], references: [userId], onDelete: Cascade)
+
+  @@map("Follow")
 }
 
 model Follow {
