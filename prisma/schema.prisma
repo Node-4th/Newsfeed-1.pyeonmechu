@@ -104,14 +104,3 @@ model Follow {
 
   @@map("Follow")
 }
-
-model Follow {
-  followId    Int @id @default(autoincrement()) @map("followId")
-  followingId Int @map("followingUserId")
-  followerId  Int @map("followerUserId")
-
-  followingUser Users @relation(name: "followingId", fields: [followingId], references: [userId], onDelete: Cascade)
-  followerUser  Users @relation(name: "followerId", fields: [followerId], references: [userId], onDelete: Cascade)
-
-  @@map("Follow")
-}
