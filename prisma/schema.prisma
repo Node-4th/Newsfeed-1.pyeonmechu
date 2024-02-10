@@ -46,7 +46,7 @@ model Posts {
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  user     Users      @relation(fields: [userId], references: [userId], onDelete: NoAction)
+  user     Users      @relation(fields: [userId], references: [userId], onDelete: Cascade)
   Like     Like[]
   Unlike   Unlike[]
   Comments Comments[]

@@ -173,21 +173,39 @@ router.get("/users/me", authMiddleware, async (req, res, next) => {
 //프로필 수정
 router.patch("/users/me", authMiddleware, async (req, res, next) => {
   try {
-    const { email, password, name, nickname, profileImage, aboutMe } = req.body;
+    const {
+      ExistingpPassword,
+      password,
+      passwordConfirm,
+      name,
+      nickname,
+      profileImage,
+      aboutMe,
+    } = req.body;
     const { userId } = req.user;
 
     const user = await prisma.users.findFirst({
       where: { userId: +userId },
     });
 
-    if (!user && user.grade === "USER")
-      return res.status(401).json({ message: "자신의 프로필이 아닙니다." });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const checkedPassword = await bcrypt.compare(
+      ExistingpPassword,
+      user.password
+    );
 
-    await prisma.users.update({
+    if (!checkedPassword)
+      return res.status(401).json({ message: "기존의 비밀번호와 다릅니다." });
+
+    if (password !== passwordConfirm)
+      return res
+        .status(401)
+        .json({ message: "비밀번호와 비밀번호 확인이 다릅니다." });
+
+    const result = await prisma.users.update({
       where: { userId: +userId },
       data: {
-        email,
-        password,
+        password: hashedPassword,
         name,
         nickname,
         profileImage,
@@ -195,9 +213,11 @@ router.patch("/users/me", authMiddleware, async (req, res, next) => {
       },
     });
 
-    return res
-      .status(201)
-      .json({ success: true, message: "프로필 수정이 완료되었습니다." });
+    return res.status(201).json({
+      success: true,
+      message: "프로필 수정이 완료되었습니다.",
+      result,
+    });
   } catch (err) {
     next(err);
   }
@@ -211,11 +231,11 @@ router.delete("/users/leave", authMiddleware, async (req, res, next) => {
     await prisma.users.delete({
       where: { userId: +userId },
     });
+
     return res
-      .clearCookie("authorization")
       .status(200)
-      .json({ success: true, message: "회원 탈퇴되었습니다." })
-      .redirect("/posts");
+      .json({ message: "회원 탈퇴되었습니다." })
+      .clearCookie("authorization");
   } catch (err) {
     next(err);
   }
@@ -245,16 +265,10 @@ router.get("/users/:userId", async (req, res, next) => {
       },
     });
 
-    const othersPost = await prisma.posts.findFirst({
-      where: { userId: +userId },
-    });
-
-    if (!othersPost)
-      return res.status(404).json({ message: "존재하지 않는 글입니다." });
-
     const userPosts = await prisma.posts.findMany({
       where: { userId: +userId },
       select: {
+        postId: true,
         userId: true,
         title: true,
         content: true,
