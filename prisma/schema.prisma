@@ -24,8 +24,8 @@ model Users {
 
   Posts     Posts[]
   Comments  Comments[]
-  Following Follow[]   @relation(name: "followingId")
-  Follower  Follow[]   @relation(name: "followerId")
+  Following Follows[]  @relation(name: "followingId")
+  Follower  Follows[]  @relation(name: "followerId")
 
   @@map("Users")
 }
@@ -94,7 +94,7 @@ model Hates {
   @@map("Hates")
 }
 
-model Follow {
+model Follows {
   followId    Int @id @default(autoincrement()) @map("followId")
   followingId Int @map("followingUserId")
   followerId  Int @map("followerUserId")
@@ -102,5 +102,5 @@ model Follow {
   followingUser Users @relation(name: "followingId", fields: [followingId], references: [userId], onDelete: Cascade)
   followerUser  Users @relation(name: "followerId", fields: [followerId], references: [userId], onDelete: Cascade)
 
-  @@map("Follow")
+  @@map("Follows")
 }
