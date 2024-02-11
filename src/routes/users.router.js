@@ -53,7 +53,7 @@ router.post("/sign-up", async (req, res, next) => {
         .status(400)
         .json({ success: false, message: "이름을 입력해주세요" });
     }
-    // 닉네임이 없으면 이름으로 출력
+    // 닉네임 존재 유무 없으면 이름 사용
     if (!nickname) {
       nickname = name;
     }
