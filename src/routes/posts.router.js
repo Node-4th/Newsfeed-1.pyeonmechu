@@ -7,7 +7,7 @@ const router = express.Router();
 
 // 게시글 생성
 router.post("/posts", authMiddleware, async (req, res, next) => {
-  const { title, content, imageURL, tag, category } = req.body;
+  const { title, content, imageURL, tag, category, star } = req.body;
   const { userId } = req.user;
 
   if (!title) {
@@ -32,6 +32,7 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
       imageURL,
       tag,
       category: category.toLowerCase(),
+      star,
     },
   });
 
@@ -94,29 +95,12 @@ router.get("/posts/:postId", async (req, res, next) => {
     where: {
       postId: Number(postId),
     },
-    select: {
-      user: {
-        select: {
-          nickname: true,
-        },
-        postId: true,
-        userId: true,
-        title: true,
-        content: true,
-        imageURL: true,
-        tag: true,
-        star: true,
-        category: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    },
   });
 
   if (!post) {
     return res.status(400).json({
       success: false,
-      messsage: "작성한 이력서가 없습니다.",
+      messsage: "작성한 게시물이 없습니다.",
     });
   }
 
