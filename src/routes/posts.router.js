@@ -10,17 +10,6 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
   const { title, content, imageURL, tag, category } = req.body;
   const { userId } = req.user;
 
-  const post = await prisma.posts.create({
-    data: {
-      userId: +userId,
-      title,
-      content,
-      imageURL,
-      tag,
-      category,
-    },
-  });
-
   if (!title) {
     return res.status(400).json({
       success: false,
@@ -34,6 +23,17 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
       message: "내용은 필수값입니다.",
     });
   }
+
+  const post = await prisma.posts.create({
+    data: {
+      userId: Number(userId),
+      title,
+      content,
+      imageURL,
+      tag,
+      category: category.toLowerCase(),
+    },
+  });
 
   return res.status(201).json({
     data: post,
@@ -79,7 +79,7 @@ router.get("/posts", async (req, res, next) => {
       updatedAt: true,
     },
     orderBy: {
-      createdAt: orderValue.toLowerCase(),
+      [orderKey]: orderValue.toLowerCase(),
     },
   });
 
@@ -90,16 +90,9 @@ router.get("/posts", async (req, res, next) => {
 router.get("/posts/:postId", async (req, res, next) => {
   const { postId } = req.params;
 
-  if (!postId) {
-    return res.status(400).json({
-      success: false,
-      message: "postId 는 필수값 입니다.",
-    });
-  }
-
   const post = await prisma.posts.findFirst({
     where: {
-      postId: +postId,
+      postId: Number(postId),
     },
     select: {
       user: {
@@ -112,9 +105,8 @@ router.get("/posts/:postId", async (req, res, next) => {
         content: true,
         imageURL: true,
         tag: true,
+        star: true,
         category: true,
-        like: true,
-        unlike: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -122,7 +114,10 @@ router.get("/posts/:postId", async (req, res, next) => {
   });
 
   if (!post) {
-    return res.json({ messsage: "작성한 이력서가 없습니다." });
+    return res.status(400).json({
+      success: false,
+      messsage: "작성한 이력서가 없습니다.",
+    });
   }
 
   return res.status(200).json({ data: post });
@@ -132,35 +127,28 @@ router.get("/posts/:postId", async (req, res, next) => {
 router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
   const user = req.user;
   const postId = req.params.postId;
-  const { title, content, imageURL, tag, category } = req.body;
+  const { title, content, imageURL, tag, star, category } = req.body;
 
-  if (!postId) {
-    return res.status(400).json({
-      success: false,
-      message: "postId는 필수값 입니다.",
-    });
-  }
+  // if (!title) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     message: "제목은 필수값 입니다.",
+  //   });
+  // }
 
-  if (!title) {
-    return res.status(400).json({
-      success: false,
-      message: "제목은 필수값 입니다.",
-    });
-  }
+  // if (!content) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     message: "내용은 필수값 입니다.",
+  //   });
+  // }
 
-  if (!content) {
-    return res.status(400).json({
-      success: false,
-      message: "내용은 필수값 입니다.",
-    });
-  }
-
-  if (!category) {
-    return res.status(400).json({
-      success: false,
-      message: "카테고리는 필수값 입니다.",
-    });
-  }
+  // if (!category) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     message: "카테고리는 필수값 입니다.",
+  //   });
+  // }
 
   const post = await prisma.posts.findFirst({
     where: {
@@ -169,16 +157,16 @@ router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
   });
 
   if (!post) {
-    return res.status(400).json({
+    return res.status(404).json({
       success: false,
       message: "게시글이 존재하지 않습니다.",
     });
   }
 
-  if (post.userId !== user.userId) {
-    return res.status(400).json({
+  if (post.userId !== user.userId && user.grade === "USER") {
+    return res.status(401).json({
       success: false,
-      message: "올바르지 않은 요청입니다.",
+      message: "해당 게시글의 수정 권한이 없습니다.",
     });
   }
 
@@ -191,6 +179,7 @@ router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
       content,
       imageURL,
       tag,
+      star,
       category,
     },
   });
@@ -206,13 +195,6 @@ router.delete("/posts/:postId", authMiddleware, async (req, res, next) => {
   const user = req.user;
   const postId = req.params.postId;
 
-  if (!postId) {
-    return res.status(400).json({
-      success: false,
-      message: "postId는 필수값입니다.",
-    });
-  }
-
   const post = await prisma.posts.findFirst({
     where: {
       postId: Number(postId),
@@ -220,16 +202,16 @@ router.delete("/posts/:postId", authMiddleware, async (req, res, next) => {
   });
 
   if (!post) {
-    return res.status(400).json({
+    return res.status(404).json({
       success: false,
       message: "게시글이 존재하지 않습니다.",
     });
   }
 
-  if (post.userId !== user.userId) {
-    return res.status(400).json({
+  if (post.userId !== user.userId && user.grade === "USER") {
+    return res.status(401).json({
       success: false,
-      message: "올바르지 않은 요청입니다.",
+      message: "해당 게시글의 삭제 권한이 없습니다.",
     });
   }
 
@@ -239,10 +221,13 @@ router.delete("/posts/:postId", authMiddleware, async (req, res, next) => {
     },
   });
 
-  return res.status(201).json({
-    success: true,
-    message: "삭제 완료되었습니다.",
-  });
+  return res
+    .status(201)
+    .json({
+      success: true,
+      message: "게시글 삭제가 완료되었습니다.",
+    })
+    .redirect("/posts");
 });
 
 export default router;
