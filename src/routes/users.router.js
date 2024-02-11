@@ -53,11 +53,9 @@ router.post("/sign-up", async (req, res, next) => {
         .status(400)
         .json({ success: false, message: "이름을 입력해주세요" });
     }
-    // 닉네임 존재 유무
+    // 닉네임이 없으면 이름으로 출력
     if (!nickname) {
-      return res
-        .status(400)
-        .json({ success: false, message: "닉네임을 입력해주세요." });
+      nickname = name;
     }
     // // 프로필이미지 존재 유무
     // if (!profileImage) {
@@ -134,7 +132,7 @@ router.post("/sign-in", async (req, res, next) => {
 });
 
 // 로그아웃 API
-router.post("/logout", async (req, res, next) => {
+router.post("/sign-out", async (req, res, next) => {
   try {
     // 쿠키를 삭제하여 로그아웃
     res.clearCookie("authorization");
