@@ -5,6 +5,7 @@ import Logger from "./middlewares/logger.middleware.js";
 import UsersRouter from "./routes/users.router.js";
 import PostsRouter from "./routes/posts.router.js";
 import CommentsRouter from "./routes/comments.router.js";
+import EmailRouter from "./routes/email.router.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -16,7 +17,7 @@ app.use(Logger);
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/", [UsersRouter, PostsRouter, CommentsRouter]);
+app.use("/", [UsersRouter, PostsRouter, CommentsRouter, EmailRouter]);
 app.use(ErrorHandler);
 
 app.listen(PORT, () => {
