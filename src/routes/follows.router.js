@@ -92,7 +92,7 @@ router.get("/users/:userId/followings", async (req, res, next) => {
       });
     }
 
-    let followingList = await prisma.follows.findMany({
+    const followingList = await prisma.follows.findMany({
       where: { followerId: +userId },
       select: {
         followingId: true,
@@ -106,8 +106,9 @@ router.get("/users/:userId/followings", async (req, res, next) => {
     });
 
     if (!followingList[0]) {
-      followingList = "아직 팔로잉이 없습니다.";
-      return res.status(200).json({ success: true, message: followingList });
+      return res
+        .status(200)
+        .json({ success: true, message: "아직 팔로잉이 없습니다." });
     }
 
     followingList.forEach((follows) => {
@@ -142,7 +143,7 @@ router.get("/users/:userId/followers", async (req, res, next) => {
       });
     }
 
-    let followerList = await prisma.follows.findMany({
+    const followerList = await prisma.follows.findMany({
       where: { followingId: +userId },
       select: {
         followerId: true,
@@ -156,8 +157,9 @@ router.get("/users/:userId/followers", async (req, res, next) => {
     });
 
     if (!followerList[0]) {
-      followerList = "아직 팔로워가 없습니다.";
-      return res.status(200).json({ success: true, message: followerList });
+      return res
+        .status(200)
+        .json({ success: true, message: "아직 팔로워가 없습니다" });
     }
 
     followerList.forEach((follows) => {
