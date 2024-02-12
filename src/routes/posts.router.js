@@ -3,7 +3,6 @@ import authMiddleware from "../middlewares/auth.middleware.js";
 import { prisma } from "../utils/index.js";
 
 const router = express.Router();
-// express.Router()를 이용해 라우터를 생성합니다.
 
 // 게시글 생성
 router.post("/posts", authMiddleware, async (req, res, next) => {
@@ -26,7 +25,7 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
 
   const post = await prisma.posts.create({
     data: {
-      userId: Number(userId),
+      userId: +userId,
       title,
       content,
       imageURL,
@@ -42,7 +41,7 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
   });
 });
 
-/** 게시글 목록 조회 API **/
+// 게시글 목록 조회 (뉴스피드)
 router.get("/posts", async (req, res, next) => {
   const orderKey = req.query.orderKey ?? "postId";
   const orderValue = req.query.orderValue ?? "desc";
@@ -87,56 +86,35 @@ router.get("/posts", async (req, res, next) => {
   return res.status(200).json({ data: posts });
 });
 
-/** 게시글 상세 조회 API **/
+// 게시글 상세 조회
 router.get("/posts/:postId", async (req, res, next) => {
   const { postId } = req.params;
 
   const post = await prisma.posts.findFirst({
     where: {
-      postId: Number(postId),
+      postId: +postId,
     },
   });
 
   if (!post) {
-    return res.status(400).json({
+    return res.status(404).json({
       success: false,
-      messsage: "작성한 게시물이 없습니다.",
+      messsage: "게시글이 존재하지 않습니다.",
     });
   }
 
   return res.status(200).json({ data: post });
 });
 
-/** 게시글 수정 */
+// 게시글 수정
 router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
   const user = req.user;
   const postId = req.params.postId;
   const { title, content, imageURL, tag, star, category } = req.body;
 
-  // if (!title) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     message: "제목은 필수값 입니다.",
-  //   });
-  // }
-
-  // if (!content) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     message: "내용은 필수값 입니다.",
-  //   });
-  // }
-
-  // if (!category) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     message: "카테고리는 필수값 입니다.",
-  //   });
-  // }
-
   const post = await prisma.posts.findFirst({
     where: {
-      postId: Number(postId),
+      postId: +postId,
     },
   });
 
@@ -156,7 +134,7 @@ router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
 
   await prisma.posts.update({
     where: {
-      postId: Number(postId),
+      postId: +postId,
     },
     data: {
       title,
@@ -174,14 +152,14 @@ router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
   });
 });
 
-/** 게시글 삭제 */
+// 게시글 삭제
 router.delete("/posts/:postId", authMiddleware, async (req, res, next) => {
   const user = req.user;
   const postId = req.params.postId;
 
   const post = await prisma.posts.findFirst({
     where: {
-      postId: Number(postId),
+      postId: +postId,
     },
   });
 
@@ -201,52 +179,13 @@ router.delete("/posts/:postId", authMiddleware, async (req, res, next) => {
 
   await prisma.posts.delete({
     where: {
-      postId: Number(postId),
+      postId: +postId,
     },
   });
 
-  return res
-    .status(201)
-    .json({
-      success: true,
-      message: "게시글 삭제가 완료되었습니다.",
-    })
-    .redirect("/posts");
-});
-
-// 게시글 생성
-router.post("/posts", authMiddleware, async (req, res, next) => {
-  const { title, content, imageURL, tag, category } = req.body;
-  const { userId } = req.user;
-
-  const post = await prisma.posts.create({
-    data: {
-      userId: +userId,
-      title,
-      content,
-      imageURL,
-      tag,
-      category,
-    },
-  });
-
-  if (!title) {
-    return res.status(400).json({
-      success: false,
-      message: "제목은 필수값입니다.",
-    });
-  }
-
-  if (!content) {
-    return res.status(400).json({
-      success: false,
-      message: "내용은 필수값입니다.",
-    });
-  }
-
-  return res.status(201).json({
-    data: post,
-    message: "게시글이 작성되었습니다.",
+  return res.status(200).json({
+    success: true,
+    message: "게시글 삭제가 완료되었습니다.",
   });
 });
 
