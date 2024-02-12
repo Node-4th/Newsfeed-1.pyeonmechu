@@ -5,7 +5,9 @@ import Logger from "./middlewares/logger.middleware.js";
 import UsersRouter from "./routes/users.router.js";
 import PostsRouter from "./routes/posts.router.js";
 import CommentsRouter from "./routes/comments.router.js";
+import LikesRouter from "./routes/likes.router.js";
 import dotenv from "dotenv";
+// TODO: users 라우터에서 profile Router 따로 만들기, 라우터 모듈화
 
 dotenv.config();
 
@@ -16,7 +18,7 @@ app.use(Logger);
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/", [UsersRouter, PostsRouter, CommentsRouter]);
+app.use("/", [UsersRouter, PostsRouter, CommentsRouter, LikesRouter]);
 app.use(ErrorHandler);
 
 app.listen(PORT, () => {
