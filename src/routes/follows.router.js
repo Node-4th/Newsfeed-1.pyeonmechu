@@ -48,7 +48,7 @@ router.post(
           },
         });
 
-        return res.status(201).json({
+        return res.status(200).json({
           success: true,
           message: `${followingUser.nickname}님을 언팔로우했습니다.`,
         });
@@ -117,7 +117,7 @@ router.post(
 //         },
 //       });
 
-//       return res.status(201).json({
+//       return res.status(200).json({
 //         success: true,
 //         message: `${followingUser.nickname}님을 언팔로우하였습니다.`,
 //       });
@@ -129,90 +129,100 @@ router.post(
 
 //해당 유저의 팔로잉 목록보기
 router.get("/users/:userId/following", async (req, res, next) => {
-  const { userId } = req.params;
-  if (!userId) {
-    return res
-      .status(400)
-      .json({ success: false, message: "userId는 필수로 입력되어야합니다." });
-  }
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "userId는 필수로 입력되어야합니다." });
+    }
 
-  const user = await prisma.users.findFirst({
-    where: { userId: +userId },
-  });
-
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "해당 유저를 찾을 수 없습니다.",
+    const user = await prisma.users.findFirst({
+      where: { userId: +userId },
     });
-  }
 
-  const followingList = await prisma.follows.findMany({
-    where: { followerId: +userId },
-    select: {
-      followingId: true,
-      followingUser: {
-        select: {
-          nickname: true,
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "해당 유저를 찾을 수 없습니다.",
+      });
+    }
+
+    const followingList = await prisma.follows.findMany({
+      where: { followerId: +userId },
+      select: {
+        followingId: true,
+        followingUser: {
+          select: {
+            nickname: true,
+          },
         },
       },
-    },
-  });
+      orderBy: { followId: "desc" },
+    });
 
-  followingList.forEach((follows) => {
-    follows.nickname = follows.followingUser.nickname;
-    delete follows.followingUser;
-  });
+    followingList.forEach((follows) => {
+      follows.nickname = follows.followingUser.nickname;
+      delete follows.followingUser;
+    });
 
-  // if (!followingList ) { //>>> 조건식이 이상한듯. 결과가 안나옴
-  //   followingList = "아직 팔로우한 사람이 없습니다."; //이거 넣을거면 위에 const followingList >> let으로 바꿔줘야함.
-  // }
+    // if (!followingList ) { //>>> 조건식이 이상한듯. 결과가 안나옴
+    //   followingList = "아직 팔로우한 사람이 없습니다."; //이거 넣을거면 위에 const followingList >> let으로 바꿔줘야함.
+    // }
 
-  return res.status(200).json({ success: true, data: followingList });
+    return res.status(200).json({ success: true, data: followingList });
+  } catch (err) {
+    next(err);
+  }
 });
 
 //해당 유저의 팔로워 목록보기
 router.get("/users/:userId/follower", async (req, res, next) => {
-  const { userId } = req.params;
-  if (!userId) {
-    return res
-      .status(400)
-      .json({ success: false, message: "userId는 필수로 입력되어야합니다." });
-  }
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "userId는 필수로 입력되어야합니다." });
+    }
 
-  const user = await prisma.users.findFirst({
-    where: { userId: +userId },
-  });
-
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "해당 유저를 찾을 수 없습니다.",
+    const user = await prisma.users.findFirst({
+      where: { userId: +userId },
     });
-  }
 
-  const followerList = await prisma.follows.findMany({
-    where: { followingId: +userId },
-    select: {
-      followerId: true,
-      followerUser: {
-        select: {
-          nickname: true,
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "해당 유저를 찾을 수 없습니다.",
+      });
+    }
+
+    const followerList = await prisma.follows.findMany({
+      where: { followingId: +userId },
+      select: {
+        followerId: true,
+        followerUser: {
+          select: {
+            nickname: true,
+          },
         },
       },
-    },
-  });
+      orderBy: { followId: "desc" },
+    });
 
-  followerList.forEach((follows) => {
-    follows.nickname = follows.followerUser.nickname;
-    delete follows.followerUser;
-  });
+    followerList.forEach((follows) => {
+      follows.nickname = follows.followerUser.nickname;
+      delete follows.followerUser;
+    });
 
-  // if (!followerList ) { //>>> 조건식이 이상한듯. 결과가 안나옴
-  //   followerList = "아직 팔로우한 사람이 없습니다."; //이거 넣을거면 위에 const followerList >> let으로 바꿔줘야함.
-  // }
+    // if (!followerList ) { //>>> 조건식이 이상한듯. 결과가 안나옴
+    //   followerList = "아직 팔로우한 사람이 없습니다."; //이거 넣을거면 위에 const followerList >> let으로 바꿔줘야함.
+    // }
 
-  return res.status(200).json({ success: true, data: followerList });
+    return res.status(200).json({ success: true, data: followerList });
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;
