@@ -42,15 +42,14 @@ model Posts {
   content   String   @map("content") @db.Text
   imageURL  String?  @map("imageURL")
   tag       String?  @map("tag")
-  star      Int      @map("star")
+  star      Int?     @map("star")
   category  Category @map("category")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-
-  user     Users      @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  Likes    Likes[]
-  Hates    Hates[]
+  user  Users   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  Likes Likes[]
+  Hates Hates[]
 
   Comments Comments[]
 
@@ -88,9 +87,9 @@ model Likes {
 }
 
 model Hates {
-  unlikeId Int @id @default(autoincrement()) @map("unlikeId")
-  postId   Int @map("postId")
-  userId   Int @unique @map("userId")
+  hateId Int @id @default(autoincrement()) @map("hateId")
+  postId Int @map("postId")
+  userId Int @unique @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
