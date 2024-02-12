@@ -42,6 +42,7 @@ model Posts {
   content   String   @map("content") @db.Text
   imageURL  String?  @map("imageURL")
   tag       String?  @map("tag")
+  star      Int      @map("star")
   category  Category @map("category")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
