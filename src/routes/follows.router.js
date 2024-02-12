@@ -14,7 +14,7 @@ router.post(
       const followerId = req.user.userId;
 
       if (!followingId) {
-        return res.status(404).json({
+        return res.status(400).json({
           success: false,
           message: "팔로우하려는 유저를 지정해주세요.",
         });
@@ -105,14 +105,15 @@ router.get("/users/:userId/followings", async (req, res, next) => {
       orderBy: { followId: "desc" },
     });
 
+    if (!followingList[0]) {
+      followingList = "아직 팔로잉이 없습니다.";
+      return res.status(200).json({ success: true, message: followingList });
+    }
+
     followingList.forEach((follows) => {
       follows.nickname = follows.followingUser.nickname;
       delete follows.followingUser;
     });
-
-    if (!followingList[0]) {
-      followingList = "아직 팔로우한 사람이 없습니다.";
-    }
 
     return res.status(200).json({ success: true, data: followingList });
   } catch (err) {
@@ -154,14 +155,15 @@ router.get("/users/:userId/followers", async (req, res, next) => {
       orderBy: { followId: "desc" },
     });
 
+    if (!followerList[0]) {
+      followerList = "아직 팔로워가 없습니다.";
+      return res.status(200).json({ success: true, message: followerList });
+    }
+
     followerList.forEach((follows) => {
       follows.nickname = follows.followerUser.nickname;
       delete follows.followerUser;
     });
-
-    if (!followerList[0]) {
-      followerList = "아직 팔로우한 사람이 없습니다.";
-    }
 
     return res.status(200).json({ success: true, data: followerList });
   } catch (err) {
