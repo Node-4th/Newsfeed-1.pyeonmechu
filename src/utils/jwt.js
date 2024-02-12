@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 // 초기 payload를 통한 토큰 생성
 const generateAccessToken = (payload) => {
   return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET_KEY, {
-    expiresIn: "12h",
+    expiresIn: "1h",
   });
 };
 const generateRefreshToken = (payload) => {
