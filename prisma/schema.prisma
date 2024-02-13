@@ -31,6 +31,7 @@ model Users {
 }
 
 enum Grade {
+  UNVERIFIED
   USER
   ADMIN
 }
@@ -77,9 +78,10 @@ model Comments {
 }
 
 model Likes {
-  likeId Int @id @default(autoincrement()) @map("likeId")
-  postId Int @map("postId")
-  userId Int @unique @map("userId")
+  likeId    Int  @id @default(autoincrement()) @map("likeId")
+  postId    Int  @map("postId")
+  commentId Int? @map("commentId")
+  userId    Int  @unique @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
@@ -87,9 +89,10 @@ model Likes {
 }
 
 model Hates {
-  hateId Int @id @default(autoincrement()) @map("hateId")
-  postId Int @map("postId")
-  userId Int @unique @map("userId")
+  hateId    Int  @id @default(autoincrement()) @map("hateId")
+  postId    Int  @map("postId")
+  commentId Int? @map("commentId")
+  userId    Int  @unique @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
