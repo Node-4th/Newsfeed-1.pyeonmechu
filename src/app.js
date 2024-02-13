@@ -8,6 +8,7 @@ import CommentsRouter from "./routes/comments.router.js";
 import EmailRouter from "./routes/email.router.js";
 import FollowsRouter from "./routes/follows.router.js";
 import LikesRouter from "./routes/likes.router.js";
+import NewsfeedRouter from "./routes/newsfeed.router.js";
 import dotenv from "dotenv";
 // TODO: users 라우터에서 profile Router 따로 만들기, 라우터 모듈화
 
@@ -22,6 +23,7 @@ app.use(cookieParser());
 
 app.use("/", [
   UsersRouter,
+  NewsfeedRouter,
   PostsRouter,
   FollowsRouter,
   CommentsRouter,
