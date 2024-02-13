@@ -5,6 +5,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
   generateEmailToken,
+  verifyRefreshToken,
 } from "../utils/jwt.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 import { sendMail } from "../utils/email.js";
@@ -136,9 +137,9 @@ router.post("/sign-in", async (req, res, next) => {
     }
     // 쿠키 할당 및 출력
     const token = generateAccessToken({ userId: user.userId });
-    // const refreshToken = generateRefreshToken({ userId: user.userId });
+    const refreshToken = generateRefreshToken({ userId: user.userId });
     res.cookie("authorization", `Bearer ${token}`);
-    // res.cookie("refreshToken", `Bearer ${refreshToken}`);
+    res.cookie("refreshToken", `Bearer ${refreshToken}`);
     return res.status(200).json({ message: "로그인에 성공하였습니다." });
   } catch (error) {
     next(error);
@@ -150,13 +151,32 @@ router.post("/sign-out", async (req, res, next) => {
   try {
     // 쿠키를 삭제하여 로그아웃
     res.clearCookie("authorization");
-    // res.clearCookie("refreshToken");
+    res.clearCookie("refreshToken");
 
     return res.status(200).json({ message: "로그아웃 되었습니다." });
   } catch (error) {
     next(error);
   }
 });
+
+// AccessToken 재발급 API
+router.post("/refresh-token", async (req, res, next) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) {
+      return res
+        .status(400)
+        .json({ success: false, message: "refreshToken이 없습니다." });
+    }
+    const [tokenType, token] = refreshToken.split(" ");
+    const refreshTokenData = verifyRefreshToken(token);
+    const newToken = generateAccessToken({ userId: refreshTokenData.userId });
+    res.cookie("authorization", `Bearer ${newToken}`);
+    return res
+      .status(201)
+      .json({ success: true, message: "accessToken이 재발급되었습니다." });
+  } catch (error) {
+    next(error);
 
 // 프로필 조회
 router.get("/users/me", authMiddleware, async (req, res, next) => {
