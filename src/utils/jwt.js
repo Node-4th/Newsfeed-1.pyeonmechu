@@ -20,9 +20,28 @@ const verifyRefreshToken = (token) => {
   return jwt.verify(token, process.env.REFRESH_TOKEN_SECRET_KEY);
 };
 
+const generateEmailToken = (userId, email) => {
+  const payload = {
+    userId: userId,
+    email: email,
+  };
+
+  const token = jwt.sign(payload, process.env.EMAIL_VERIFY_TOKEN_KEY, {
+    expiresIn: "24h",
+  });
+
+  return token;
+};
+
+const verifyEmailToken = (token) => {
+  return jwt.verify(token, process.env.EMAIL_VERIFY_TOKEN_KEY);
+};
+
 export {
   generateAccessToken,
   verifyAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
+  generateEmailToken,
+  verifyEmailToken,
 };

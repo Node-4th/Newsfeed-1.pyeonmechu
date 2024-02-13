@@ -1,8 +1,13 @@
 import express, { json } from "express";
 import { prisma } from "../utils/index.js";
 import bcrypt from "bcrypt";
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  generateEmailToken,
+} from "../utils/jwt.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
+import { sendMail } from "../utils/email.js";
 
 const router = express.Router();
 
@@ -17,10 +22,10 @@ router.post("/sign-up", async (req, res, next) => {
       nickname,
       profileImage,
       aboutMe,
-      grade = "USER",
+      grade = "UNVERIFIED",
     } = req.body;
     // 권한 설정
-    if (grade && !["USER", "ADMIN"].includes(grade)) {
+    if (grade && !["UNVERIFIED", "USER", "ADMIN"].includes(grade)) {
       return res
         .status(400)
         .json({ success: false, message: "권한 설정이 올바르지 않습니다." });
@@ -53,11 +58,9 @@ router.post("/sign-up", async (req, res, next) => {
         .status(400)
         .json({ success: false, message: "이름을 입력해주세요" });
     }
-    // 닉네임 존재 유무
+    // 닉네임 존재 유무 없으면 이름 사용
     if (!nickname) {
-      return res
-        .status(400)
-        .json({ success: false, message: "닉네임을 입력해주세요." });
+      nickname = name;
     }
     // // 프로필이미지 존재 유무
     // if (!profileImage) {
@@ -94,6 +97,11 @@ router.post("/sign-up", async (req, res, next) => {
         grade,
       },
     });
+    // 이메일 인증 토큰
+    const emailToken = generateEmailToken(user.userId, user.email);
+    // 이메일 발송
+    await sendMail(email, emailToken);
+
     return res.status(201).json({ email, name, nickname });
   } catch (error) {
     next(error);
@@ -114,6 +122,10 @@ router.post("/sign-in", async (req, res, next) => {
     }
     // 사용자 조회
     const user = await prisma.users.findFirst({ where: { email } });
+    // 이메일 인증 확인
+    if (user.grade === "UNVERIFIED") {
+      return res.status(403).json({ message: "이메일 인증이 필요합니다." });
+    }
     // 사용자 존재 여부 확인
     if (!user) {
       return res.status(404).json({ message: "존재하지 않는 이메일입니다." });
@@ -134,7 +146,7 @@ router.post("/sign-in", async (req, res, next) => {
 });
 
 // 로그아웃 API
-router.post("/logout", async (req, res, next) => {
+router.post("/sign-out", async (req, res, next) => {
   try {
     // 쿠키를 삭제하여 로그아웃
     res.clearCookie("authorization");

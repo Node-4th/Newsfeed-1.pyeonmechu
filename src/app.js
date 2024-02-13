@@ -5,6 +5,7 @@ import Logger from "./middlewares/logger.middleware.js";
 import UsersRouter from "./routes/users.router.js";
 import PostsRouter from "./routes/posts.router.js";
 import CommentsRouter from "./routes/comments.router.js";
+import EmailRouter from "./routes/email.router.js";
 import FollowsRouter from "./routes/follows.router.js";
 import LikesRouter from "./routes/likes.router.js";
 import dotenv from "dotenv";
@@ -24,6 +25,7 @@ app.use("/", [
   PostsRouter,
   FollowsRouter,
   CommentsRouter,
+  EmailRouter,
   LikesRouter,
 ]);
 app.use(ErrorHandler);
