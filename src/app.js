@@ -8,6 +8,7 @@ import CommentsRouter from "./routes/comments.router.js";
 import EmailRouter from "./routes/email.router.js";
 import FollowsRouter from "./routes/follows.router.js";
 import LikesRouter from "./routes/likes.router.js";
+import pagesRouter from "./routes/page.router.js";
 import dotenv from "dotenv";
 // TODO: users 라우터에서 profile Router 따로 만들기, 라우터 모듈화
 
@@ -15,6 +16,9 @@ dotenv.config();
 
 const app = express();
 const PORT = 3000;
+
+app.set("view engine", "ejs");
+app.set("views", "./src/views");
 
 app.use(Logger);
 app.use(express.json());
@@ -44,6 +48,7 @@ app.use("/", [
   CommentsRouter,
   EmailRouter,
   LikesRouter,
+  pagesRouter,
 ]);
 app.use(ErrorHandler);
 

@@ -179,7 +179,6 @@ router.post("/refresh-token", async (req, res, next) => {
     next(error);
   }
 });
-
 // 프로필 조회
 router.get("/users/me", authMiddleware, async (req, res, next) => {
   try {
