@@ -5,7 +5,7 @@ import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-// 프로필 조회
+//프로필 조회 API
 router.get("/users/me", authMiddleware, async (req, res, next) => {
   try {
     const { userId } = req.user;
@@ -23,13 +23,37 @@ router.get("/users/me", authMiddleware, async (req, res, next) => {
         updatedAt: true,
       },
     });
-    return res.status(200).json({ data: user });
+    const userPosts = await prisma.posts.findMany({
+      where: { userId: +userId },
+      select: {
+        user: {
+          select: {
+            nickname: true,
+          },
+        },
+        postId: true,
+        userId: true,
+        title: true,
+        content: true,
+        imageURL: true,
+        tag: true,
+        category: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    userPosts.forEach((posts) => {
+      posts.nickname = posts.user.nickname;
+      delete posts.user;
+    });
+
+    return res.status(200).json({ data: user, userPosts });
   } catch (err) {
     next(err);
   }
 });
 
-//프로필 수정
+//프로필 수정 API
 router.patch("/users/me", authMiddleware, async (req, res, next) => {
   try {
     const {
@@ -64,12 +88,7 @@ router.patch("/users/me", authMiddleware, async (req, res, next) => {
 
     let hashedPassword = user.password;
 
-    if (password !== undefined || passwordConfirm !== undefined) {
-      if (!password)
-        return res
-          .status(400)
-          .json({ message: "새로운 비밀번호를 입력해 주세요" });
-
+    if (password !== undefined && password !== "") {
       if (!passwordConfirm)
         return res
           .status(400)
@@ -90,15 +109,21 @@ router.patch("/users/me", authMiddleware, async (req, res, next) => {
       hashedPassword = await bcrypt.hash(password, 10);
     }
 
+    let nicknameToName;
+    if (!nickname) {
+      nicknameToName = name;
+    } else {
+      nicknameToName = nickname;
+    }
+    const updateData = {
+      name: name !== "" ? name : user.name,
+      nickname: nickname !== "" ? nickname : user.nickname,
+      profileImage: profileImage !== "" ? profileImage : user.profileImage,
+      aboutMe: aboutMe !== "" ? aboutMe : user.aboutMe,
+    };
     await prisma.users.update({
       where: { userId: +userId },
-      data: {
-        password: hashedPassword,
-        name,
-        nickname,
-        profileImage,
-        aboutMe,
-      },
+      data: updateData,
     });
 
     return res.status(201).json({
@@ -110,7 +135,7 @@ router.patch("/users/me", authMiddleware, async (req, res, next) => {
   }
 });
 
-// 회원 탈퇴
+//회원 탈퇴 API
 router.delete("/users/leave", authMiddleware, async (req, res, next) => {
   try {
     const { userId } = req.user;
@@ -127,7 +152,7 @@ router.delete("/users/leave", authMiddleware, async (req, res, next) => {
   }
 });
 
-// 다른 사람 포스트 보기
+//다른 사람 프로필 조회 및 포스트 보기 API
 router.get("/users/:userId", async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -154,6 +179,11 @@ router.get("/users/:userId", async (req, res, next) => {
     const userPosts = await prisma.posts.findMany({
       where: { userId: +userId },
       select: {
+        user: {
+          select: {
+            nickname: true,
+          },
+        },
         postId: true,
         userId: true,
         title: true,
@@ -164,6 +194,10 @@ router.get("/users/:userId", async (req, res, next) => {
         createdAt: true,
         updatedAt: true,
       },
+    });
+    userPosts.forEach((posts) => {
+      posts.nickname = posts.user.nickname;
+      delete posts.user;
     });
 
     return res.status(200).json({ userProfile, userPosts });
