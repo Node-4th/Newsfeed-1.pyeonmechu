@@ -74,6 +74,7 @@ router.get("/posts/:postId/comments", async (req, res, next) => {
     const comments = await prisma.comments.findMany({
       where: { postId: +postId },
       select: {
+        commentId: true,
         content: true,
         user: {
           select: {
@@ -86,7 +87,12 @@ router.get("/posts/:postId/comments", async (req, res, next) => {
       orderBy: { createdAt: "asc" },
     });
 
-    return res.status(200).json({ data: comments });
+    comments.forEach((comments) => {
+      comments.nickname = comments.user.nickname;
+      delete comments.user;
+    });
+
+    return res.status(200).json({ success: true, data: comments });
   } catch (err) {
     next(err);
   }
@@ -155,7 +161,7 @@ router.patch(
 
       return res
         .status(201)
-        .json({ message: "댓글 수정사항이 저장되었습니다." });
+        .json({ success: true, message: "댓글 수정사항이 저장되었습니다." });
     } catch (err) {
       next(err);
     }
@@ -214,7 +220,9 @@ router.delete(
         where: { commentId: +commentId },
       });
 
-      return res.status(204).json({ message: "댓글이 삭제되었습니다." });
+      return res
+        .status(200)
+        .json({ success: true, message: "댓글이 삭제되었습니다." });
     } catch (err) {
       next(err);
     }
