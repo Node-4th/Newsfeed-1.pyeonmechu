@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>편메추</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <style>
+      .postingbox {
+        border: 1px solid black;
+        width: 1150px;
+        margin: 30px auto;
+        padding: 30px;
+      }
+
+      .leftbox {
+        margin: 0px 0px 0px 20%;
+      }
+
+      .profilebox {
+        border: 1px solid black;
+        width: 1150px;
+        height: 450px;
+        margin: 30px auto;
+        padding: 30px;
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .photobox {
+        border: 1px solid black;
+        width: 300px;
+        height: 260px;
+        margin: 5px 5px 5px auto;
+      }
+
+      .followbox {
+        width: 300px;
+        height: 50px;
+        border: 1px solid black;
+        margin: 5px 5px 5px auto;
+      }
+
+      .namebox {
+        width: 300px;
+        height: 40px;
+        border: 1px solid black;
+        margin: 5px;
+      }
+
+      .infobox {
+        width: 300px;
+        height: 220px;
+        border: 1px solid black;
+        margin: 5px;
+      }
+
+      .createdbox {
+        width: 300px;
+        height: 45px;
+        border: 1px solid black;
+        margin: 5px;
+      }
+
+      .profiletop {
+        justify-content: space-between;
+        display: flex;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="profilebox">
+      <div class="profiletop">
+        <div class="pageinfo">프로필 페이지</div>
+        <button>메인으로</button>
+      </div>
+      <br />
+      <div class="leftbox">
+        <div class="photobox">사진</div>
+        <div class="followbox">
+          following 0 <br />
+          follower 0
+        </div>
+      </div>
+      <div class="rightbox">
+        <div class="namebox">이름/ 닉네임</div>
+        <div class="infobox">aboutMe</div>
+        <div class="createdbox">가입일 createdAt</div>
+      </div>
+    </div>
+    <div class="postingbox">
+      <div class="row row-cols-1 row-cols-md-3 g-3">
+        <div class="col">
+          <div class="post h-100">
+            <img src="." class="post-img-top" alt="..." />
+            <div class="post-body">
+              <h5 class="post-title">게시글 제목</h5>
+              <p class="post-text">게시글 내용</p>
+            </div>
+            <div class="post-footer">
+              <small class="text-muted">작성일자</small>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="post h-100">
+            <img src="." class="post-img-top" alt="..." />
+            <div class="post-body">
+              <h5 class="post-title">게시글 제목</h5>
+              <p class="post-text">게시글 내용</p>
+            </div>
+            <div class="post-footer">
+              <small class="text-muted">작성일자</small>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="post h-100">
+            <img src="." class="post-img-top" alt="..." />
+            <div class="post-body">
+              <h5 class="post-title">게시글 제목</h5>
+              <p class="post-text">게시글 내용</p>
+            </div>
+            <div class="post-footer">
+              <small class="text-muted">작성일자</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

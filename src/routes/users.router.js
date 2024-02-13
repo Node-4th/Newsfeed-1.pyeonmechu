@@ -177,6 +177,8 @@ router.post("/refresh-token", async (req, res, next) => {
       .json({ success: true, message: "accessToken이 재발급되었습니다." });
   } catch (error) {
     next(error);
+  }
+});
 
 // 프로필 조회
 router.get("/users/me", authMiddleware, async (req, res, next) => {

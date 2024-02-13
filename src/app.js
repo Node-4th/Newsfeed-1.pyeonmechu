@@ -18,7 +18,24 @@ const PORT = 3000;
 
 app.use(Logger);
 app.use(express.json());
+app.set("view engine", "ejs");
+app.set("views", "./src/views");
 app.use(cookieParser());
+
+app.get("/main", (req, res) => {
+  const data = { id: 1 };
+  return res.render("index", { data });
+});
+
+app.get("/profile", (req, res) => {
+  const data = { id: 1 };
+  return res.render("profile", { data });
+});
+
+app.get("/profiledetail", (req, res) => {
+  const data = { id: 1 };
+  return res.render("profiledetail", { data });
+});
 
 app.use("/", [
   UsersRouter,
