@@ -52,7 +52,7 @@ router.get("/posts/recommend", async (req, res, next) => {
       delete posts.user;
     });
 
-    return res.status(200).json({ data: posts });
+    return res.status(200).json({ success: true, data: posts });
   } catch (err) {
     next(err);
   }
@@ -105,7 +105,7 @@ router.get("/posts/combination_share", async (req, res, next) => {
       delete posts.user;
     });
 
-    return res.status(200).json({ data: posts });
+    return res.status(200).json({ success: true, data: posts });
   } catch (err) {
     next(err);
   }
@@ -158,7 +158,7 @@ router.get("/posts/event_info", async (req, res, next) => {
       delete posts.user;
     });
 
-    return res.status(200).json({ data: posts });
+    return res.status(200).json({ success: true, data: posts });
   } catch (err) {
     next(err);
   }
@@ -204,6 +204,7 @@ router.get("/posts/feed", authMiddleware, async (req, res, next) => {
         content: true,
         imageURL: true,
         tag: true,
+        category: true,
         star: true,
         createdAt: true,
         updatedAt: true,
@@ -225,7 +226,7 @@ router.get("/posts/feed", authMiddleware, async (req, res, next) => {
       delete posts.user;
     });
 
-    return res.status(200).json({ data: posts });
+    return res.status(200).json({ success: true, data: posts });
   } catch (err) {
     next(err);
   }
