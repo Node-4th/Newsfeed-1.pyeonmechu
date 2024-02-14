@@ -24,7 +24,7 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
       });
     }
     if (
-      category &&
+      !category ||
       !["recommend", "combination_share", "event_info"].includes(category)
     ) {
       return res.status(400).json({
