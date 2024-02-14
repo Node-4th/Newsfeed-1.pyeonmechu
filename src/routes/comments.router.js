@@ -43,9 +43,11 @@ router.post(
         },
       });
 
-      return res
-        .status(201)
-        .json({ success: true, message: "댓글이 저장되었습니다." });
+      return res.status(201).json({
+        data: comment,
+        success: true,
+        message: "댓글이 저장되었습니다.",
+      });
     } catch (err) {
       next(err);
     }

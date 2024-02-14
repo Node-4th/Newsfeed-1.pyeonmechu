@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import ErrorHandler from "./middlewares/error-handler.middleware.js";
 import Logger from "./middlewares/logger.middleware.js";
+import SignsRouter from "./routes/sign.router.js";
 import UsersRouter from "./routes/users.router.js";
 import PostsRouter from "./routes/posts.router.js";
 import CommentsRouter from "./routes/comments.router.js";
@@ -9,6 +10,7 @@ import EmailRouter from "./routes/email.router.js";
 import FollowsRouter from "./routes/follows.router.js";
 import LikesRouter from "./routes/likes.router.js";
 //import PagesRouter from "./routes/page.router.js";
+import NewsfeedRouter from "./routes/newsfeed.router.js";
 import dotenv from "dotenv";
 // TODO: users 라우터에서 profile Router 따로 만들기, 라우터 모듈화
 
@@ -42,7 +44,9 @@ app.get("/profiledetail", (req, res) => {
 });
 
 app.use("/", [
+  SignsRouter,
   UsersRouter,
+  NewsfeedRouter,
   PostsRouter,
   FollowsRouter,
   CommentsRouter,
