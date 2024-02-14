@@ -14,7 +14,7 @@ model Users {
   userId       Int      @id @default(autoincrement()) @map("userId")
   grade        Grade    @map("grade")
   email        String   @unique @map("email")
-  password     String   @map("password") @db.VarChar(20)
+  password     String   @map("password")
   name         String   @map("name") @db.VarChar(10)
   nickname     String?  @map("nickname") @db.VarChar(10)
   profileImage String?  @map("profileImage")
@@ -22,33 +22,36 @@ model Users {
   createdAt    DateTime @default(now()) @map("createdAt")
   updatedAt    DateTime @updatedAt @map("updatedAt")
 
-  Posts    Posts[]
-  Comments Comments[]
+  Posts     Posts[]
+  Comments  Comments[]
+  Following Follows[]  @relation(name: "followingId")
+  Follower  Follows[]  @relation(name: "followerId")
 
   @@map("Users")
 }
 
 enum Grade {
+  UNVERIFIED
   USER
   ADMIN
 }
 
 model Posts {
   postId    Int      @id @default(autoincrement()) @map("postId")
-  userId    Int      @map("userId")
+  userId    Int?     @map("userId")
   title     String   @map("title") @db.VarChar(50)
   content   String   @map("content") @db.Text
   imageURL  String?  @map("imageURL")
   tag       String?  @map("tag")
+  star      Int?     @map("star")
   category  Category @map("category")
-  like      Int      @default(0) @map("like")
-  unlike    Int      @default(0) @map("unlike")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  user     Users      @relation(fields: [userId], references: [userId], onDelete: NoAction)
-  Like     Like[]
-  Unlike   Unlike[]
+  user  Users?  @relation(fields: [userId], references: [userId], onDelete: SetNull)
+  Likes Likes[]
+  Hates Hates[]
+
   Comments Comments[]
 
   @@map("Posts")
@@ -62,34 +65,47 @@ enum Category {
 
 model Comments {
   commentId Int      @id @default(autoincrement()) @map("commentId")
-  userId    Int      @map("userId")
+  userId    Int?     @map("userId")
   postId    Int      @map("postId")
   content   String   @map("content")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  user Users @relation(fields: [userId], references: [userId], onDelete: NoAction)
-  post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  user Users? @relation(fields: [userId], references: [userId], onDelete: SetNull)
+  post Posts  @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
   @@map("Comments")
 }
 
-model Like {
-  likeId Int    @id @default(autoincrement()) @map("likeId")
-  postId Int    @map("postId")
-  cookie String @unique @map("cookie")
+model Likes {
+  likeId    Int  @id @default(autoincrement()) @map("likeId")
+  postId    Int  @map("postId")
+  commentId Int? @map("commentId")
+  userId    Int  @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
-  @@map("Like")
+  @@map("Likes")
 }
 
-model Unlike {
-  unlikeId Int    @id @default(autoincrement()) @map("unlikeId")
-  postId   Int    @map("postId")
-  cookie   String @unique @map("cookie")
+model Hates {
+  hateId    Int  @id @default(autoincrement()) @map("hateId")
+  postId    Int  @map("postId")
+  commentId Int? @map("commentId")
+  userId    Int  @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
-  @@map("Unlike")
+  @@map("Hates")
+}
+
+model Follows {
+  followId    Int @id @default(autoincrement()) @map("followId")
+  followingId Int @map("followingUserId")
+  followerId  Int @map("followerUserId")
+
+  followingUser Users @relation(name: "followingId", fields: [followingId], references: [userId], onDelete: Cascade)
+  followerUser  Users @relation(name: "followerId", fields: [followerId], references: [userId], onDelete: Cascade)
+
+  @@map("Follows")
 }
