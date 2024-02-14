@@ -60,63 +60,6 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
   }
 });
 
-//게시글 목록 조회 (뉴스피드) API
-router.get("/posts", async (req, res, next) => {
-  try {
-    const orderKey = req.query.orderKey ?? "postId";
-    const orderValue = req.query.orderValue ?? "desc";
-
-    if (!["postId", "category"].includes(orderKey)) {
-      return res.status(400).json({
-        success: false,
-        message: "orderKey가 올바르지 않습니다.",
-      });
-    }
-
-    if (!["asc", "desc"].includes(orderValue.toLowerCase())) {
-      return res.status(400).json({
-        success: false,
-        message: "orderValue 가 올바르지 않습니다.",
-      });
-    }
-
-    const posts = await prisma.posts.findMany({
-      select: {
-        user: {
-          select: {
-            nickname: true,
-          },
-        },
-        userId: true,
-        postId: true,
-        title: true,
-        content: true,
-        imageURL: true,
-        tag: true,
-        star: true,
-        category: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      orderBy: {
-        [orderKey]: orderValue.toLowerCase(),
-      },
-    });
-    posts.forEach((posts) => {
-      posts.nickname = posts.user.nickname;
-      delete posts.user;
-    });
-
-    return res.status(200).json({
-      data: posts,
-      success: true,
-      message: "게시글이 조회되었습니다.",
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
 //게시글 상세 조회 API
 router.get("/posts/:postId", async (req, res, next) => {
   try {
