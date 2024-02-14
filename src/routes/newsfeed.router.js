@@ -143,4 +143,57 @@ router.get("/posts/event_info", async (req, res, next) => {
   }
 });
 
+//팔로잉 피드 모아보기
+router.get("/posts/feed", authMiddleware, async (req, res, next) => {
+  try {
+    const sort = req.query.sort ?? "postId";
+    const userId = req.user.userId;
+
+    if (!["postId"].includes(sort)) {
+      return res.status(400).json({
+        success: false,
+        message: "sort가 올바르지 않습니다.",
+      });
+    }
+
+    const followingList = await prisma.follows.findMany({
+      where: { followerId: +userId },
+    });
+
+    const followingsId = followingList.map((obj) => obj.followingId);
+
+    const posts = await prisma.posts.findMany({
+      where: { userId: { in: followingsId } },
+      select: {
+        user: {
+          select: {
+            nickname: true,
+          },
+        },
+        userId: true,
+        postId: true,
+        title: true,
+        content: true,
+        imageURL: true,
+        tag: true,
+        star: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        [sort]: "desc",
+      },
+    });
+
+    posts.forEach((posts) => {
+      posts.nickname = posts.user.nickname;
+      delete posts.user;
+    });
+
+    return res.status(200).json({ data: posts });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
