@@ -9,11 +9,13 @@ import {
 } from "../utils/jwt.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 import { sendMail } from "../utils/email.js";
+import { imageMiddleware } from "../middlewares/image.middleware.js";
 
 const router = express.Router();
 
 // 회원가입 API
-router.post("/sign-up", async (req, res, next) => {
+router.post("/sign-up", imageMiddleware, async (req, res, next) => {
+  console.log(req.file);
   try {
     const {
       email,
@@ -93,7 +95,7 @@ router.post("/sign-up", async (req, res, next) => {
         password: hashedPassword, // 복호화된 비밀번호를 저장합니다.
         name,
         nickname,
-        profileImage,
+        profileImage: req.file.location,
         aboutMe,
         grade,
       },
@@ -107,6 +109,10 @@ router.post("/sign-up", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+router.get("/sign-up", imageMiddleware, async (req, res, next) => {
+  res.render("sign-up");
 });
 
 // 로그인 API
