@@ -40,6 +40,13 @@ router.get("/posts/recommend", async (req, res, next) => {
       },
     });
 
+    if (!posts[0]) {
+      return res.status(200).json({
+        success: true,
+        message: "아직 게시판에 게시글이 없습니다.",
+      });
+    }
+
     posts.forEach((posts) => {
       posts.nickname = posts.user.nickname;
       delete posts.user;
@@ -85,6 +92,13 @@ router.get("/posts/combination_share", async (req, res, next) => {
         [sort]: "desc",
       },
     });
+
+    if (!posts[0]) {
+      return res.status(200).json({
+        success: true,
+        message: "아직 게시판에 게시글이 없습니다.",
+      });
+    }
 
     posts.forEach((posts) => {
       posts.nickname = posts.user.nickname;
@@ -132,6 +146,13 @@ router.get("/posts/event_info", async (req, res, next) => {
       },
     });
 
+    if (!posts[0]) {
+      return res.status(200).json({
+        success: true,
+        message: "아직 게시판에 게시글이 없습니다.",
+      });
+    }
+
     posts.forEach((posts) => {
       posts.nickname = posts.user.nickname;
       delete posts.user;
@@ -160,6 +181,13 @@ router.get("/posts/feed", authMiddleware, async (req, res, next) => {
       where: { followerId: +userId },
     });
 
+    if (!followingList[0]) {
+      return res.status(200).json({
+        success: true,
+        message: "아직 팔로우한 유저가 없습니다.",
+      });
+    }
+
     const followingsId = followingList.map((obj) => obj.followingId);
 
     const posts = await prisma.posts.findMany({
@@ -184,6 +212,13 @@ router.get("/posts/feed", authMiddleware, async (req, res, next) => {
         [sort]: "desc",
       },
     });
+
+    if (!posts[0]) {
+      return res.status(200).json({
+        success: true,
+        message: "아직 게시글이 없습니다.",
+      });
+    }
 
     posts.forEach((posts) => {
       posts.nickname = posts.user.nickname;
