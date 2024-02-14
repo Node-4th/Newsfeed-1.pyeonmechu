@@ -4,6 +4,7 @@ import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
+//게시글 추천 API
 router.post("/posts/:postId/likes", authMiddleware, async (req, res, next) => {
   try {
     const { postId } = req.params;
@@ -13,20 +14,27 @@ router.post("/posts/:postId/likes", authMiddleware, async (req, res, next) => {
       where: { postId: +postId },
     });
     if (!post)
-      return res.status(404).json({ message: "게시글이 존재하지 않습니다." });
+      return res
+        .status(404)
+        .json({ success: false, message: "게시글이 존재하지 않습니다." });
 
     const isAlreadyLike = await prisma.likes.findFirst({
       where: { postId: +postId, userId: +userId, commentId: null },
     });
 
     if (post.userId === +userId) {
-      res.status(403).json({ message: "자신의 게시물엔 추천할 수 없습니다." });
+      return res.status(403).json({
+        success: false,
+        message: "자신의 게시물엔 추천할 수 없습니다.",
+      });
     }
 
     if (isAlreadyLike) {
       await prisma.likes.delete({ where: { likeId: isAlreadyLike.likeId } });
 
-      return res.status(200).json({ message: "추천 취소되었습니다." });
+      return res
+        .status(200)
+        .json({ success: true, message: "추천 취소되었습니다." });
     }
 
     await prisma.likes.create({
@@ -36,12 +44,13 @@ router.post("/posts/:postId/likes", authMiddleware, async (req, res, next) => {
       },
     });
 
-    return res.status(201).json({ message: "추천하였습니다." });
+    return res.status(201).json({ success: true, message: "추천하였습니다." });
   } catch (err) {
     next(err);
   }
 });
 
+//게시글 비추 API
 router.post("/posts/:postId/hates", authMiddleware, async (req, res, next) => {
   try {
     const { postId } = req.params;
@@ -51,12 +60,15 @@ router.post("/posts/:postId/hates", authMiddleware, async (req, res, next) => {
       where: { postId: +postId },
     });
     if (!post)
-      return res.status(404).json({ message: "게시글이 존재하지 않습니다." });
+      return res
+        .status(404)
+        .json({ success: false, message: "게시글이 존재하지 않습니다." });
 
     if (post.userId === +userId) {
-      res
-        .status(403)
-        .json({ message: "자신의 게시물엔 비추천할 수 없습니다." });
+      return res.status(403).json({
+        success: false,
+        message: "자신의 게시물엔 비추천할 수 없습니다.",
+      });
     }
 
     const isAlreadyHate = await prisma.hates.findFirst({
@@ -66,7 +78,9 @@ router.post("/posts/:postId/hates", authMiddleware, async (req, res, next) => {
     if (isAlreadyHate) {
       await prisma.hates.delete({ where: { hateId: isAlreadyHate.hateId } });
 
-      return res.status(200).json({ message: "비추천 취소되었습니다." });
+      return res
+        .status(200)
+        .json({ success: true, message: "비추천 취소되었습니다." });
     }
 
     await prisma.hates.create({
@@ -76,12 +90,15 @@ router.post("/posts/:postId/hates", authMiddleware, async (req, res, next) => {
       },
     });
 
-    return res.status(201).json({ message: "비추천하였습니다." });
+    return res
+      .status(201)
+      .json({ success: true, message: "비추천하였습니다." });
   } catch (err) {
     next(err);
   }
 });
 
+//댓글 추천 API
 router.post(
   "/posts/:postId/:commentId/likes",
   authMiddleware,
@@ -94,16 +111,23 @@ router.post(
         where: { postId: +postId },
       });
       if (!post)
-        return res.status(404).json({ message: "게시글이 존재하지 않습니다." });
+        return res
+          .status(404)
+          .json({ success: false, message: "게시글이 존재하지 않습니다." });
 
       const comment = await prisma.comments.findFirst({
         where: { postId: +postId, commentId: +commentId },
       });
       if (!comment)
-        return res.status(404).json({ message: "댓글이 존재하지 않습니다." });
+        return res
+          .status(404)
+          .json({ success: false, message: "댓글이 존재하지 않습니다." });
 
       if (comment.userId === +userId) {
-        res.status(403).json({ message: "자신의 댓글엔 추천할 수 없습니다." });
+        return res.status(403).json({
+          success: false,
+          message: "자신의 댓글엔 추천할 수 없습니다.",
+        });
       }
 
       const isAlreadyLike = await prisma.likes.findFirst({
@@ -113,7 +137,9 @@ router.post(
       if (isAlreadyLike) {
         await prisma.likes.delete({ where: { likeId: isAlreadyLike.likeId } });
 
-        return res.status(200).json({ message: "추천 취소되었습니다." });
+        return res
+          .status(200)
+          .json({ success: true, message: "추천 취소되었습니다." });
       }
 
       await prisma.likes.create({
@@ -124,13 +150,16 @@ router.post(
         },
       });
 
-      return res.status(201).json({ message: "추천하였습니다." });
+      return res
+        .status(201)
+        .json({ success: true, message: "추천하였습니다." });
     } catch (err) {
       next(err);
     }
   }
 );
 
+//댓글 비추 API
 router.post(
   "/posts/:postId/:commentId/hates",
   authMiddleware,
@@ -143,18 +172,23 @@ router.post(
         where: { postId: +postId },
       });
       if (!post)
-        return res.status(404).json({ message: "게시글이 존재하지 않습니다." });
+        return res
+          .status(404)
+          .json({ success: false, message: "게시글이 존재하지 않습니다." });
 
       const comment = await prisma.comments.findFirst({
         where: { postId: +postId, commentId: +commentId },
       });
       if (!comment)
-        return res.status(404).json({ message: "댓글이 존재하지 않습니다." });
+        return res
+          .status(404)
+          .json({ success: false, message: "댓글이 존재하지 않습니다." });
 
       if (comment.userId === +userId) {
-        res
-          .status(403)
-          .json({ message: "자신의 댓글엔 비추천할 수 없습니다." });
+        return res.status(403).json({
+          success: false,
+          message: "자신의 댓글엔 비추천할 수 없습니다.",
+        });
       }
 
       const isAlreadyHate = await prisma.hates.findFirst({
@@ -164,7 +198,9 @@ router.post(
       if (isAlreadyHate) {
         await prisma.hates.delete({ where: { hateId: isAlreadyHate.hateId } });
 
-        return res.status(200).json({ message: "비추천 취소되었습니다." });
+        return res
+          .status(200)
+          .json({ success: true, message: "비추천 취소되었습니다." });
       }
 
       await prisma.hates.create({
@@ -175,7 +211,9 @@ router.post(
         },
       });
 
-      return res.status(201).json({ message: "비추천하였습니다." });
+      return res
+        .status(201)
+        .json({ success: true, message: "비추천하였습니다." });
     } catch (err) {
       next(err);
     }

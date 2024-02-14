@@ -4,7 +4,7 @@ import { prisma } from "../utils/index.js";
 
 const router = express.Router();
 
-// 팔로우 API
+//팔로우 API
 router.post(
   "/users/:userId/follows",
   authMiddleware,
@@ -40,7 +40,6 @@ router.post(
       const isExistingFollowing = await prisma.follows.findFirst({
         where: { followerId: +followerId, followingId: +followingId },
       });
-      //이미 팔로우 한 사람이면 언팔로우
       if (isExistingFollowing) {
         await prisma.follows.delete({
           where: {
@@ -71,7 +70,7 @@ router.post(
   }
 );
 
-//해당 유저의 팔로잉 목록보기
+//해당 유저의 팔로잉 목록보기 API
 router.get("/users/:userId/followings", async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -122,7 +121,7 @@ router.get("/users/:userId/followings", async (req, res, next) => {
   }
 });
 
-//해당 유저의 팔로워 목록보기
+//해당 유저의 팔로워 목록보기 API
 router.get("/users/:userId/followers", async (req, res, next) => {
   try {
     const { userId } = req.params;
