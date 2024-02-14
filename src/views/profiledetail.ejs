@@ -12,7 +12,7 @@
       crossorigin="anonymous"
     />
     <style>
-      .postingbox {
+      .commentbox {
         border: 1px solid black;
         width: 1150px;
         margin: 30px auto;
@@ -30,9 +30,32 @@
         width: 1150px;
         margin: 30px auto;
         padding: 30px;
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .photobox {
+        border: 1px solid black;
+        width: 300px;
+        height: 400px;
+        margin: 30px auto;
+        padding: 30px;
+      }
+
+      .content {
+        border: 1px solid black;
+        width: 700px;
+        height: 400px;
+        margin: 30px auto;
+        padding: 30px;
+      }
+
+      .buttondiv {
+        margin-left: auto;
       }
     </style>
   </head>
+
   <body>
     <div class="topbox">
       <div class="profiletop">
@@ -41,49 +64,24 @@
       </div>
       <div class="photobox">사진</div>
       <div class="content">content</div>
+      <bR />
+      <div class="buttondiv">
+        <button>수정</button>
+        <button>삭제</button>
+      </div>
     </div>
 
-    <div></div>
+    <div class="commentbox">
+      <h5 class="comment-nickname">작성자 닉네임</h5>
+      <p class="comment-text">댓글 내용</p>
+    </div>
 
-    <div class="postingbox">
-      <div class="row row-cols-1 row-cols-md-3 g-3">
-        <div class="col">
-          <div class="post h-100">
-            <img src="." class="post-img-top" alt="..." />
-            <div class="post-body">
-              <h5 class="post-title">게시글 제목</h5>
-              <p class="post-text">게시글 내용</p>
-            </div>
-            <div class="post-footer">
-              <small class="text-muted">작성일자</small>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="post h-100">
-            <img src="." class="post-img-top" alt="..." />
-            <div class="post-body">
-              <h5 class="post-title">게시글 제목</h5>
-              <p class="post-text">게시글 내용</p>
-            </div>
-            <div class="post-footer">
-              <small class="text-muted">작성일자</small>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="post h-100">
-            <img src="." class="post-img-top" alt="..." />
-            <div class="post-body">
-              <h5 class="post-title">게시글 제목</h5>
-              <p class="post-text">게시글 내용</p>
-            </div>
-            <div class="post-footer">
-              <small class="text-muted">작성일자</small>
-            </div>
-          </div>
-        </div>
-      </div>
+    </div>
+    <div class="commentbox">
+      <h5 class="comment-nickname">작성자 닉네임</h5>
+      <p class="comment-text">댓글 내용</p>
+    </div>
+
     </div>
   </body>
 </html>
