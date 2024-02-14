@@ -13,12 +13,12 @@ router.post(
       const followingId = req.params.userId;
       const followerId = req.user.userId;
 
-      // if (!followingId) {
-      //   return res.status(400).json({
-      //     success: false,
-      //     message: "팔로우하려는 유저를 지정해주세요.",
-      //   });
-      // }
+      if (!followingId) {
+        return res.status(400).json({
+          success: false,
+          message: "팔로우하려는 유저를 지정해주세요.",
+        });
+      }
 
       const followingUser = await prisma.users.findFirst({
         where: { userId: +followingId },
@@ -74,11 +74,11 @@ router.post(
 router.get("/users/:userId/followings", async (req, res, next) => {
   try {
     const { userId } = req.params;
-    // if (!userId) {
-    //   return res
-    //     .status(400)
-    //     .json({ success: false, message: "userId는 필수로 입력되어야합니다." });
-    // }
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "userId는 필수로 입력되어야합니다." });
+    }
 
     const user = await prisma.users.findFirst({
       where: { userId: +userId },
@@ -125,11 +125,11 @@ router.get("/users/:userId/followings", async (req, res, next) => {
 router.get("/users/:userId/followers", async (req, res, next) => {
   try {
     const { userId } = req.params;
-    // if (!userId) {
-    //   return res
-    //     .status(400)
-    //     .json({ success: false, message: "userId는 필수로 입력되어야합니다." });
-    // }
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "userId는 필수로 입력되어야합니다." });
+    }
 
     const user = await prisma.users.findFirst({
       where: { userId: +userId },
