@@ -22,6 +22,7 @@ const newsfeed = function (category) {
         select: {
           user: {
             select: {
+              name: true,
               nickname: true,
             },
           },
@@ -107,6 +108,7 @@ router.get("/posts/feed", authMiddleware, async (req, res, next) => {
       select: {
         user: {
           select: {
+            name: true,
             nickname: true,
           },
         },
