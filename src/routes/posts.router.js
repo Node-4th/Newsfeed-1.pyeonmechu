@@ -33,7 +33,10 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
       });
     }
 
-    if (star && (!Number.isInteger(star) || star < 1 || star > 5)) {
+    if (
+      star != undefined &&
+      (!Number.isInteger(star) || star < 1 || star > 5)
+    ) {
       return res.status(400).json({
         success: false,
         message: "별점은 1~5 값 입니다.",
@@ -138,7 +141,10 @@ router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
       });
     }
 
-    if (star && (!Number.isInteger(star) || star < 1 || star > 5)) {
+    if (
+      star != undefined &&
+      (!Number.isInteger(star) || star < 1 || star > 5)
+    ) {
       return res.status(400).json({
         success: false,
         message: "별점은 1~5 값 입니다.",
