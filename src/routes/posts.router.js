@@ -24,7 +24,7 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
       });
     }
     if (
-      category &&
+      !category ||
       !["recommend", "combination_share", "event_info"].includes(category)
     ) {
       return res.status(400).json({
@@ -32,12 +32,17 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
         message: "카테고리가 올바르지 않습니다.",
       });
     }
-    if (!Number.isInteger(star) || star < 1 || star > 5) {
+
+    if (
+      star != undefined &&
+      (!Number.isInteger(star) || star < 1 || star > 5)
+    ) {
       return res.status(400).json({
         success: false,
         message: "별점은 1~5 값 입니다.",
       });
     }
+
     const post = await prisma.posts.create({
       data: {
         userId: +userId,
@@ -88,15 +93,15 @@ router.get("/posts/:postId", async (req, res, next) => {
       },
     });
 
-    post.nickname = post.user.nickname;
-    delete post.user;
-
     if (!post) {
       return res.status(404).json({
         success: false,
         message: "게시글이 존재하지 않습니다.",
       });
     }
+
+    post.nickname = post.user.nickname;
+    delete post.user;
 
     return res
       .status(200)
@@ -136,12 +141,16 @@ router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
       });
     }
 
-    if (!Number.isInteger(star) || star < 1 || star > 5) {
+    if (
+      star != undefined &&
+      (!Number.isInteger(star) || star < 1 || star > 5)
+    ) {
       return res.status(400).json({
         success: false,
         message: "별점은 1~5 값 입니다.",
       });
     }
+
     if (post.userId !== user.userId && user.grade === "USER") {
       return res.status(401).json({
         success: false,
@@ -153,6 +162,8 @@ router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
       content: content !== "" ? content : post.content,
       imageURL: imageURL !== "" ? imageURL : post.imageURL,
       tag: tag !== "" ? tag : post.tag,
+      category: category !== "" ? category : post.category,
+      star: star !== "" ? star : post.star,
     };
 
     await prisma.posts.update({
