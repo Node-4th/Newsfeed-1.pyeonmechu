@@ -38,7 +38,7 @@ enum Grade {
 
 model Posts {
   postId    Int      @id @default(autoincrement()) @map("postId")
-  userId    Int      @map("userId")
+  userId    Int?     @map("userId")
   title     String   @map("title") @db.VarChar(50)
   content   String   @map("content") @db.Text
   imageURL  String?  @map("imageURL")
@@ -48,7 +48,7 @@ model Posts {
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  user  Users   @relation(fields: [userId], references: [userId], onDelete: NoAction)
+  user  Users?  @relation(fields: [userId], references: [userId], onDelete: SetNull)
   Likes Likes[]
   Hates Hates[]
 
@@ -65,14 +65,14 @@ enum Category {
 
 model Comments {
   commentId Int      @id @default(autoincrement()) @map("commentId")
-  userId    Int      @map("userId")
+  userId    Int?     @map("userId")
   postId    Int      @map("postId")
   content   String   @map("content")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  user Users @relation(fields: [userId], references: [userId], onDelete: NoAction)
-  post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  user Users? @relation(fields: [userId], references: [userId], onDelete: SetNull)
+  post Posts  @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
   @@map("Comments")
 }
