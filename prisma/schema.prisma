@@ -81,7 +81,7 @@ model Likes {
   likeId    Int  @id @default(autoincrement()) @map("likeId")
   postId    Int  @map("postId")
   commentId Int? @map("commentId")
-  userId    Int  @unique @map("userId")
+  userId    Int  @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
@@ -92,7 +92,7 @@ model Hates {
   hateId    Int  @id @default(autoincrement()) @map("hateId")
   postId    Int  @map("postId")
   commentId Int? @map("commentId")
-  userId    Int  @unique @map("userId")
+  userId    Int  @map("userId")
 
   post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
