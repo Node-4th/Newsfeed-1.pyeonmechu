@@ -72,6 +72,7 @@ router.get("/posts/:postId", async (req, res, next) => {
       select: {
         user: {
           select: {
+            name: true,
             nickname: true,
           },
         },
@@ -88,8 +89,14 @@ router.get("/posts/:postId", async (req, res, next) => {
       },
     });
 
-    post.nickname = post.user.nickname;
+    if (!post.user) {
+      post.user = { nickname: "탈퇴한 유저" };
+    }
+    post.nickname = post.user.nickname ?? post.user.name;
     delete post.user;
+
+    post.likes = await prisma.likes.count({ where: { postId: post.postId } });
+    post.hates = await prisma.hates.count({ where: { postId: post.postId } });
 
     if (!post) {
       return res.status(404).json({
@@ -126,6 +133,13 @@ router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
       });
     }
 
+    if (post.userId !== user.userId && user.grade === "USER") {
+      return res.status(401).json({
+        success: false,
+        message: "해당 게시글의 수정 권한이 없습니다.",
+      });
+    }
+
     if (
       category &&
       !["recommend", "combination_share", "event_info"].includes(category)
@@ -142,12 +156,7 @@ router.patch("/posts/:postId", authMiddleware, async (req, res, next) => {
         message: "별점은 1~5 값 입니다.",
       });
     }
-    if (post.userId !== user.userId && user.grade === "USER") {
-      return res.status(401).json({
-        success: false,
-        message: "해당 게시글의 수정 권한이 없습니다.",
-      });
-    }
+
     const updateData = {
       title: title !== "" ? title : post.title,
       content: content !== "" ? content : post.content,

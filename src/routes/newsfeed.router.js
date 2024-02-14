@@ -47,10 +47,20 @@ const newsfeed = function (category) {
         });
       }
 
-      posts.forEach((posts) => {
-        posts.nickname = posts.user.nickname;
-        delete posts.user;
-      });
+      for (let i = 0; i < posts.length; i++) {
+        if (!posts[i].user) {
+          posts[i].user = { nickname: "탈퇴한 유저" };
+        }
+        posts[i].nickname = posts[i].user.nickname ?? posts[i].user.name;
+        delete posts[i].user;
+
+        posts[i].likes = await prisma.likes.count({
+          where: { postId: posts[i].postId },
+        });
+        posts[i].hates = await prisma.hates.count({
+          where: { postId: posts[i].postId },
+        });
+      }
 
       return res.status(200).json({ success: true, data: posts });
     } catch (err) {
@@ -123,10 +133,20 @@ router.get("/posts/feed", authMiddleware, async (req, res, next) => {
       });
     }
 
-    posts.forEach((posts) => {
-      posts.nickname = posts.user.nickname;
-      delete posts.user;
-    });
+    for (let i = 0; i < posts.length; i++) {
+      if (!posts[i].user) {
+        posts[i].user = { nickname: "탈퇴한 유저" };
+      }
+      posts[i].nickname = posts[i].user.nickname ?? posts[i].user.name;
+      delete posts[i].user;
+
+      posts[i].likes = await prisma.likes.count({
+        where: { postId: posts[i].postId },
+      });
+      posts[i].hates = await prisma.hates.count({
+        where: { postId: posts[i].postId },
+      });
+    }
 
     return res.status(200).json({ success: true, data: posts });
   } catch (err) {
