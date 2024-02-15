@@ -19,9 +19,6 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-app.set("view engine", "ejs");
-app.set("views", "./src/views");
-
 app.use(Logger);
 app.use(express.json());
 app.set("view engine", "ejs");
