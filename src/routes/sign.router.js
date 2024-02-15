@@ -83,13 +83,15 @@ router.post("/sign-up", imageMiddleware, async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const profileImg = "undefined" ? "프로필 이미지" : req.file.location;
+
     const user = await prisma.users.create({
       data: {
         email,
         password: hashedPassword,
         name,
         nickname: nicknameToName,
-        profileImage: req.file.location,
+        profileImage: profileImg,
         aboutMe,
         grade,
       },
