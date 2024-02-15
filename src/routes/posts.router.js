@@ -145,9 +145,6 @@ router.get("/posts/:postId", async (req, res, next) => {
       },
     });
 
-    post.nickname = post.user.nickname;
-    delete post.user;
-
     if (!post) {
       return res.status(404).json({
         success: false,

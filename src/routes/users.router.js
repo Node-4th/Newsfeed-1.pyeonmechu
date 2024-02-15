@@ -2,6 +2,7 @@ import express from "express";
 import { prisma } from "../utils/index.js";
 import bcrypt from "bcrypt";
 import authMiddleware from "../middlewares/auth.middleware.js";
+import { imageMiddleware } from "../middlewares/image.middleware.js";
 
 const router = express.Router();
 
@@ -54,86 +55,92 @@ router.get("/users/me", authMiddleware, async (req, res, next) => {
 });
 
 //프로필 수정 API
-router.patch("/users/me", authMiddleware, async (req, res, next) => {
-  try {
-    const {
-      existingPassword,
-      password,
-      passwordConfirm,
-      name,
-      nickname,
-      profileImage,
-      aboutMe,
-    } = req.body;
-    const { userId } = req.user;
+router.patch(
+  "/users/me",
+  authMiddleware,
+  imageMiddleware,
+  async (req, res, next) => {
+    try {
+      const {
+        existingPassword,
+        password,
+        passwordConfirm,
+        name,
+        nickname,
+        profileImage,
+        aboutMe,
+      } = req.body;
+      console.log(profileImage, req.files, req.file);
+      const { userId } = req.user;
 
-    const user = await prisma.users.findFirst({
-      where: { userId: +userId },
-    });
+      const user = await prisma.users.findFirst({
+        where: { userId: +userId },
+      });
 
-    if (!existingPassword)
-      return res
-        .status(400)
-        .json({ success: false, message: "기존의 비밀 번호를 입력해 주세요." });
+      // if (!existingPassword)
+      //   return res
+      //     .status(400)
+      //     .json({ success: false, message: "기존의 비밀 번호를 입력해 주세요." });
 
-    const checkedPassword = await bcrypt.compare(
-      existingPassword,
-      user.password
-    );
+      // const checkedPassword = await bcrypt.compare(
+      //   existingPassword,
+      //   user.password
+      // );
 
-    if (!checkedPassword)
-      return res
-        .status(401)
-        .json({ success: false, message: "기존의 비밀 번호와 다릅니다." });
+      // if (!checkedPassword)
+      //   return res
+      //     .status(401)
+      //     .json({ success: false, message: "기존의 비밀 번호와 다릅니다." });
 
-    let hashedPassword = user.password;
+      let hashedPassword = user.password;
 
-    if (password !== undefined && password !== "") {
-      if (!passwordConfirm)
-        return res
-          .status(400)
-          .json({ message: "새로운 비밀번호 확인을 입력해 주세요" });
+      if (password !== undefined && password !== "") {
+        if (!passwordConfirm)
+          return res
+            .status(400)
+            .json({ message: "새로운 비밀번호 확인을 입력해 주세요" });
 
-      if (password !== passwordConfirm)
-        return res.status(400).json({
-          success: false,
-          message: "비밀번호와 비밀번호 확인이 다릅니다.",
-        });
+        if (password !== passwordConfirm)
+          return res.status(400).json({
+            success: false,
+            message: "비밀번호와 비밀번호 확인이 다릅니다.",
+          });
 
-      if (password.length < 6 || password.length > 20)
-        return res.status(400).json({
-          success: false,
-          message: "비밀번호는 최소 6자리 이상, 최대 20자리 이하 입니다.",
-        });
+        if (password.length < 6 || password.length > 20)
+          return res.status(400).json({
+            success: false,
+            message: "비밀번호는 최소 6자리 이상, 최대 20자리 이하 입니다.",
+          });
 
-      hashedPassword = await bcrypt.hash(password, 10);
+        hashedPassword = await bcrypt.hash(password, 10);
+      }
+
+      let nicknameToName;
+      if (!nickname) {
+        nicknameToName = name;
+      } else {
+        nicknameToName = nickname;
+      }
+      const updateData = {
+        name: name !== "" ? name : user.name,
+        nickname: nickname !== "" ? nickname : user.nickname,
+        profileImage: profileImage !== "" ? profileImage : user.profileImage,
+        aboutMe: aboutMe !== "" ? aboutMe : user.aboutMe,
+      };
+      await prisma.users.update({
+        where: { userId: +userId },
+        data: updateData,
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "프로필 수정이 완료되었습니다.",
+      });
+    } catch (err) {
+      next(err);
     }
-
-    let nicknameToName;
-    if (!nickname) {
-      nicknameToName = name;
-    } else {
-      nicknameToName = nickname;
-    }
-    const updateData = {
-      name: name !== "" ? name : user.name,
-      nickname: nickname !== "" ? nickname : user.nickname,
-      profileImage: profileImage !== "" ? profileImage : user.profileImage,
-      aboutMe: aboutMe !== "" ? aboutMe : user.aboutMe,
-    };
-    await prisma.users.update({
-      where: { userId: +userId },
-      data: updateData,
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "프로필 수정이 완료되었습니다.",
-    });
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 //회원 탈퇴 API
 router.delete("/users/leave", authMiddleware, async (req, res, next) => {
