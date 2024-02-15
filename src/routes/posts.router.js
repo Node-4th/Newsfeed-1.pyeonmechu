@@ -110,9 +110,6 @@ router.get("/posts/:postId", async (req, res, next) => {
       });
     }
 
-    post.nickname = post.user.nickname;
-    delete post.user;
-
     return res
       .status(200)
       .json({ data: post, success: true, message: "게시글이 조회되었습니다." });

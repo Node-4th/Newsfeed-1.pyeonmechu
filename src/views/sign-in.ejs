@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form id="signInForm">
+      <div>아이디(이메일)를 입력해 주세요</div>
+      <input id="email" type="email" name="email" />
+      <div>비밀 번호를 입력해주세요</div>
+      <input id="password" type="password" name="password" />
+      <button class="signin" type="submit">Sign in</button>
+    </form>
+
+    <script>
+      document
+        .getElementById("signInForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+
+          try {
+            const response = await fetch("http://localhost:3000/sign-in", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email, password }),
+            });
+
+            if (!response.ok) {
+              throw new Error(`에러: ${response.status}`);
+            }
+
+            const responseData = await response.json();
+            console.log(responseData);
+            alert("로그인");
+          } catch (error) {
+            console.error("Error:", error);
+            alert("실패");
+          }
+        });
+    </script>
+  </body>
+</html>

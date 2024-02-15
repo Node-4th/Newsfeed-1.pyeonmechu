@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form
+      id="imgForm"
+      action="/sign-up"
+      enctype="multipart/form-data"
+      method="POST"
+    >
+      <input type="file" name="imgUpload" accept="image/*" />
+      <img src="" alt="" />
+      <div>아이디(이메일)를 입력해 주세요</div>
+      <input id="email" type="email" name="email" />
+      <div>비밀 번호를 입력해주세요</div>
+      <input id="password" type="password" name="password" />
+      <div>비밀 번호 확인을 입력해 주세요</div>
+      <input id="passwordConfirm" type="password" name="passwordConfirm" />
+      <div>닉네임을 입력해 주세요</div>
+      <input id="nickName" type="text" name="nickname" />
+      <div>이름을 입력해 주세요</div>
+      <input id="name" type="text" name="name" />
+      <div>자기 소개를 입력해 주세요</div>
+      <input id="aboutMe" type="text" name="aboutMe" />
+      <input id="grade" type="text" name="grade" />
+      <button class="signup" type="submit">회원 가입</button>
+    </form>
+
+    <script>
+      document.getElementById("form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const passwordConfirm =
+          document.getElementById("passwordConfirm").value;
+        const nickname = document.getElementById("nickName").value
+          ? document.getElementById("nickName").value
+          : null;
+        const name = document.getElementById("name").value;
+        const aboutMe = document.getElementById("aboutMe").value
+          ? document.getElementById("aboutMe").value
+          : null;
+        const grade = document.getElementById("grade").value;
+
+        try {
+          const response = await fetch("http://localhost:3000/sign-up", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email,
+              password,
+              passwordConfirm,
+              nickname,
+              name,
+              aboutMe,
+              grade: "USER",
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`상태 에러: ${response.status}`);
+          }
+
+          const responseData = await response.json();
+          console.log(responseData);
+          alert("회원 가입하였습니다.");
+        } catch (error) {
+          console.error("Error:", error);
+          alert("회원 가입에 실패하였습니다.");
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -9,11 +9,13 @@ import {
 } from "../utils/jwt.js";
 import { sendMail } from "../utils/email.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
+import { imageMiddleware } from "../middlewares/image.middleware.js";
 
 const router = express.Router();
 
 //회원가입 API
-router.post("/sign-up", async (req, res, next) => {
+router.post("/sign-up", imageMiddleware, async (req, res, next) => {
+  //console.log(req.file);
   try {
     const {
       email,
@@ -87,7 +89,7 @@ router.post("/sign-up", async (req, res, next) => {
         password: hashedPassword,
         name,
         nickname: nicknameToName,
-        profileImage,
+        profileImage: req.file.location,
         aboutMe,
         grade,
       },
@@ -103,9 +105,12 @@ router.post("/sign-up", async (req, res, next) => {
     if (emailToken) {
       await sendMail(email, emailToken);
     }
-    return res
-      .status(201)
-      .json({ success: true, email, name, nickname: nicknameToName });
+    return res.status(201).json({
+      success: true,
+      email,
+      name,
+      nickname: nicknameToName,
+    });
   } catch (err) {
     next(err);
   }
