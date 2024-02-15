@@ -117,9 +117,10 @@ router.patch("/users/me", authMiddleware, async (req, res, next) => {
     }
     const updateData = {
       name: name !== "" ? name : user.name,
-      nickname: nickname !== "" ? nickname : user.nickname,
+      nickname: nicknameToName,
       profileImage: profileImage !== "" ? profileImage : user.profileImage,
       aboutMe: aboutMe !== "" ? aboutMe : user.aboutMe,
+      password: hashedPassword,
     };
     await prisma.users.update({
       where: { userId: +userId },
