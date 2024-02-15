@@ -18,16 +18,16 @@ router.post("/posts/:postId/likes", authMiddleware, async (req, res, next) => {
         .status(404)
         .json({ success: false, message: "게시글이 존재하지 않습니다." });
 
-    const isAlreadyLike = await prisma.likes.findFirst({
-      where: { postId: +postId, userId: +userId, commentId: null },
-    });
-
     if (post.userId === +userId) {
       return res.status(403).json({
         success: false,
         message: "자신의 게시물엔 추천할 수 없습니다.",
       });
     }
+
+    const isAlreadyLike = await prisma.likes.findFirst({
+      where: { postId: +postId, userId: +userId, commentId: null },
+    });
 
     if (isAlreadyLike) {
       await prisma.likes.delete({ where: { likeId: isAlreadyLike.likeId } });

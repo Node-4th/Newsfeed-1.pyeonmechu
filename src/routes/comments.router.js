@@ -80,6 +80,7 @@ router.get("/posts/:postId/comments", async (req, res, next) => {
         content: true,
         user: {
           select: {
+            name: true,
             nickname: true,
           },
         },
@@ -89,10 +90,23 @@ router.get("/posts/:postId/comments", async (req, res, next) => {
       orderBy: { createdAt: "asc" },
     });
 
-    comments.forEach((comments) => {
-      comments.nickname = comments.user.nickname;
-      delete comments.user;
-    });
+    for (let i = 0; i < comments.length; i++) {
+      if (!comments[i].user) {
+        comments[i].user = { nickname: "탈퇴한 유저" };
+      }
+      comments[i].nickname = comments[i].user.nickname ?? comments[i].user.name;
+      delete comments[i].user;
+
+      comments[i].likes = await prisma.likes.count({
+        where: {
+          postId: comments[i].postId,
+          commentId: comments[i].commentId,
+        },
+      });
+      comments[i].hates = await prisma.hates.count({
+        where: { postId: comments[i].postId, commentId: comments[i].commentId },
+      });
+    }
 
     return res.status(200).json({ success: true, data: comments });
   } catch (err) {
