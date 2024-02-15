@@ -15,7 +15,7 @@ const router = express.Router();
 
 //회원가입 API
 router.post("/sign-up", imageMiddleware, async (req, res, next) => {
-  console.log(req.file);
+  //console.log(req.file);
   try {
     const {
       email,
@@ -105,16 +105,15 @@ router.post("/sign-up", imageMiddleware, async (req, res, next) => {
     if (emailToken) {
       await sendMail(email, emailToken);
     }
-    return res
-      .status(201)
-      .json({ success: true, email, name, nickname: nicknameToName });
+    return res.status(201).json({
+      success: true,
+      email,
+      name,
+      nickname: nicknameToName,
+    });
   } catch (err) {
     next(err);
   }
-});
-
-router.get("/sign-up", (req, res, next) => {
-  res.render("sign-up");
 });
 
 //로그인 API
