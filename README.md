@@ -1,3 +1,6 @@
+![image](https://github.com/Node-4th/Newsfeed-1.pyeonmechu/assets/154207883/e6969047-1d6e-489e-90b2-a567a3d397d1)
+
+
 # 편메추  
 편의점 음식에 한해 상품을 추천하고, 맛있는 메뉴 조합을 공유하고, 편의점과 관련한 이벤트/할인 정보를 제공하는 웹 사이트(api)  
 - :point_right: <a href="https://www.youtube.com/watch?v=gSYeb3seVBw">시연 영상</a> :point_left:  
